@@ -1,0 +1,21 @@
+{
+  "port": 3000,
+  "db": "chat-vue-node",
+  "gravatar": [
+    "//img.souche.com/20161230/png/58f22ad636a0f33bad8762688f78d425.png",
+    "//img.souche.com/20161230/png/6cdcda90c2f86ba1f45393cf5b26e324.png",
+    "//img.souche.com/20161230/png/f9d10bb683d940dd14dc1b1344e89568.png",
+    "//img.souche.com/20161230/png/8bb4f0fd45ed6ae26533eadd85f0f7ea.png",
+    "//img.souche.com/20161230/png/0795744371fd5869af6cab796bdacb95.png",
+    "//img.souche.com/20161230/png/bc836261fbb654dda6b653e428014279.png",
+    "//img.souche.com/20161230/png/fd9f8aecab317e177655049a49b64d02.png"
+  ],
+  "fe": {
+    "uploadAPI": "",
+    "storageNamespace": "easy-mock_",
+    "timeout": 25000,
+    "publicPath": "/dist/",
+    "mockPrefix": "/mock/",
+    "APIPrefix": "http://127.0.0.1:7300/api"
+  }
+}
