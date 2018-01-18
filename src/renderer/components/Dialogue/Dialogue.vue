@@ -6,7 +6,7 @@
       </div>
     </transition>
     <transition name="fade">
-      <div class="nickName">{{ user.name }}</div>
+      <div class="nickname">{{ user.name }}</div>
     </transition>
     <transition v-bind:name="transitionName">
       <div class="bubble" v-if="isShow">
@@ -138,7 +138,7 @@ export default {
   height: 100%;
 }
 
-.nickName {
+.nickname {
   position: absolute;
   top: 0;
   font-size: 12px;
@@ -173,11 +173,11 @@ export default {
   flex-direction: row-reverse;
 }
 
-.container.left .nickName {
+.container.left .nickname {
   left: 50px;
 }
 
-.container.right .nickName {
+.container.right .nickname {
   right: 50px;
 }
 
