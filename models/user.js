@@ -9,7 +9,7 @@ const schema = new Schema({
   head_img: String,
   name: String,
   password: String,
-  fd_list: [String],
+  fd_list: [String],  // 好友列表
   create_at: {
     type: Date,
     default: Date.now

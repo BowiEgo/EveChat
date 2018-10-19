@@ -21,8 +21,9 @@
 </template>
 
 <script>
-import initSocket from '../../util/initSocket'
+import initSocket from '@/util/initSocket'
 import { mapState, mapGetters } from 'vuex'
+import { merge } from '@/util'
 
 import DialogueVue from '@/components/Dialogue/Dialogue.vue'
 // import * as io from 'socket.io-client'
@@ -56,11 +57,10 @@ export default {
     this.$socket.emit('disconnect')
   },
   created () {
-    this.$socket = initSocket(this.user)
+    initSocket(this.user) // vm.$socket
   },
   mounted () {
     console.log(this.user)
-    // this.$socket = io.connect(`http://localhost:3000/chat?userId=${this.user._id}`)
     console.log('socket', this.$socket)
     this.$socket.on('fetch chatrooms', res => {
       console.log('res', res)
@@ -69,7 +69,12 @@ export default {
     this.$socket.on('fetch message', res => {
       console.log('fetch message', res)
       this.text = ''
-      res.socketId !== this.socket.id && this.$dialog({user: res.user, text: res.text, type: 'left', duration: 1000})
+      res.socketId !== this.socket.id && this.$dialog({
+        user: res.user,
+        text: res.text,
+        type: 'left',
+        duration: 1000
+      })
       this.scrollBottom()
     })
 
@@ -82,15 +87,31 @@ export default {
       this.$store.dispatch('SET_CHAT_ROOM', data)
     },
     submit (text) {
-      this.$dialog({user: this.user, text: text, type: 'right', duration: 1000})
+      let user = {
+        head_img: '',
+        name: '',
+        nick_name: '',
+        _id: ''
+      }
+
+      user = merge(user, this.user)
+
+      this.$dialog({
+        user: user,
+        text: text,
+        type: 'right',
+        duration: 1000
+      })
       let obj = {
-        user: this.user,
+        user: user,
         text: this.text,
-        socketId: this.socket.id,
+        socketId: this.$socket.id,
         chatId: this.chatRoomActived._id
       }
       console.log('obj', obj)
-      this.$socket.emit('submit message', obj)
+      this.$socket.emit('submit message', obj).then(res => {
+        console.log('submit success')
+      })
 
       this.scrollBottom()
     },
