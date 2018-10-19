@@ -63,6 +63,13 @@ export default {
         console.log(res)
         if (res.data.success) {
           /* TODO 完成注册 */
+          this.$store.dispatch('SET_USER', res.data.data)
+          this.isBtnLoaing = true
+          setTimeout(() => {
+            this.$router.push({
+              name: 'home'
+            })
+          }, 2000)
         } else {
           /* TODO 提示错误 */
           this.hintError(res.data.message)

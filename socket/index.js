@@ -9,37 +9,45 @@ module.exports = function createSocket (server) {
 
 function initChat (io) {
   let chat = io.of('/chat').on('connection', client => {
-    let userId = client.handshake.query.userId
-    console.log(`${userId} connected`)
-    let chatrooms = []
-    Chat.getByUserId(userId).then(res => {
-      console.log('chatrooms', res)
-      chatrooms = res
-      if (chatrooms.length > 0) {
-        client.emit('fetch chatrooms', chatrooms)
-      }
-    })
+    let { userId, targetUserId, chatId } = client.handshake.query
+    if (chatId) {
+      client.join(chatId)
+    } else {
+      Chat.newAndSave(userId, targetUserId)
+    }
+    console.log(`user-${userId} connected to chatroom-${chatId}`)
+    // let chatrooms = []
+    // Chat.getByUserId(userId).then(res => {
+    //   console.log('chatrooms', res)
+    //   chatrooms = res
+    //   if (chatrooms.length > 0) {
+    //     client.emit('fetch chatrooms', chatrooms)
+    //   }
+    // })
 
     // 监听用户发送消息
     client.on('submit message', res => {
-      let chatrooms = []
-      Chat.getByUserId(userId).then(cr => {
-        chatrooms = cr
-        if (chatrooms.length === 0) {
-          Chat.newAndSave(userId, res)
-          return
+      return new Promise((resolve, reject) => {
+        // let chatrooms = []
+        // Chat.getByUserId(userId).then(cr => {
+        //   chatrooms = cr
+        //   if (chatrooms.length === 0) {
+        //     Chat.newAndSave(userId, res)
+        //     return
+        //   }
+        //   client.emit('fetch chatrooms', chatrooms)
+        // })
+        // client.emit('fetch chatrooms', chatrooms)
+        console.log('message', res)
+        let dialogue = {
+          text: res.text,
+          user: res.user
         }
-        client.emit('fetch chatrooms', chatrooms)
+        Chat.addDialogue(res.chatId, dialogue)
+        chat.to(chatId).emit('fetch message', res)
+        resolve()
+        // TODO 保存dialogue数据 then(() => {io.emit('fetch message', res)})
       })
-      client.emit('fetch chatrooms', chatrooms)
-      console.log('message', res)
-      chat.emit('fetch message', res)
-      let dialogue = {
-        text: res.text,
-        user: res.user
-      }
-      Chat.addDialogue(res.chatId, dialogue)
-      // TODO 保存dialogue数据 then(() => {io.emit('fetch message', res)})
     })
     
     // 监听用户退出

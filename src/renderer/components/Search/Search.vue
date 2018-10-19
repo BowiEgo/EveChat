@@ -23,7 +23,7 @@ export default {
   computed: {
     ...mapState(['user', 'chatRoom']),
     ...mapGetters({
-      chatRoomList: 'GET_CHAT_ROOM',
+      chatRoomList: 'GET_CHAT_ROOMS',
       chatRoomActived: 'GET_ACTIVED_CHAT_ROOM'
     })
   },

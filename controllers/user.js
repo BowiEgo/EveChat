@@ -7,6 +7,15 @@ const ft = require('../models/fields_table')
 
 const userProxy = p.User
 
+exports.list = async (ctx, next) => {
+  let users = await userProxy.all()
+  ctx.body = ctx.util.resuccess({
+    data: users.map(item => {
+      return _.pick(item, ft.user)
+    }),
+  message: '查找成功'})
+}
+
 exports.register = async (ctx, next) => {
   const name = ctx.checkBody('username').notEmpty().len(4, 20).value
   const password = ctx.checkBody('password').notEmpty().len(6, 20).value

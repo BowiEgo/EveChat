@@ -1,7 +1,7 @@
 const state = { list: [] }
 
 const mutations = {
-  SET_CHAT_ROOM (state, arr) {
+  SET_CHAT_ROOMS (state, arr) {
     state.list = []
     arr.map((item, index) => {
       item.active = index === 0
@@ -19,8 +19,8 @@ const mutations = {
 }
 
 const actions = {
-  SET_CHAT_ROOM ({ commit }, arr) {
-    commit('SET_CHAT_ROOM', arr)
+  SET_CHAT_ROOMS ({ commit }, arr) {
+    commit('SET_CHAT_ROOMS', arr)
   },
   ADD_CHAT_ROOM ({ commit }, obj) {
     commit('ADD_CHAT_ROOM', obj)
@@ -31,8 +31,8 @@ const actions = {
 }
 
 const getters = {
-  GET_CHAT_ROOM (state) {
-    return state.list
+  GET_CHAT_ROOMS (state) {
+    return Array.from(state.list)
   },
   // GET_CHAT_INFO (state) {
   //   return state.list.map(item => {

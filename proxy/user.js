@@ -5,6 +5,10 @@ const config = require('config')
 
 const UserModel = m.User
 
+exports.all = () => {
+  return UserModel.find({})
+}
+
 exports.newAndSave = (name, password, nickName, headImg) => {
   const user = new UserModel()
   const len = config.get('gravatar').length

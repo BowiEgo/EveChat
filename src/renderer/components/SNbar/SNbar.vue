@@ -2,16 +2,16 @@
   <div id="SNbar">
     <div @click="close">X</div>
     <div class="head-img">
-      <img :src="user.head_img" />
+      <img :src="targetUser.head_img" />
     </div>
-    <div class="name">{{ user.name }}</div>
+    <div class="name">{{ targetUser.name }}</div>
     <div class="button" @click="sendMsg">发消息</div>
     <div class="button" @click="follow">关注TA</div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'SNbar',
@@ -21,18 +21,27 @@ export default {
     }
   },
   computed: {
+    ...mapState(['user']),
     ...mapGetters({
       isShow: 'GET_SN_BAR_STATE',
-      user: 'GET_SN_BAR_USER_INFO'
+      targetUser: 'GET_SN_BAR_USER_INFO'
     })
   },
   methods: {
-    ...mapActions(['TOGGLE_SN_BAR']),
+    ...mapActions(['TOGGLE_SN_BAR', 'ADD_CHAT_ROOM']),
     close () {
       this.TOGGLE_SN_BAR(false)
     },
     sendMsg () {
       console.log('sendMsg')
+      // let chat = {
+      //   active: true,
+      //   dialog_list: [],
+      //   user_list: [this.user._id, this.targetUser._id],
+      //   _id: ''
+      // }
+      // this.ADD_CHAT_ROOM(chat)
+      this.close()
     },
     follow () {
       console.log('follow')

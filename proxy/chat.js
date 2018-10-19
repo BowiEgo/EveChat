@@ -13,11 +13,11 @@ const getByUserId = (userId) => {
   return ChatModel.$where(`this.user_list.indexOf("${userId}") !== -1`).exec()
 }
 
-const newAndSave = (userId, dialog) => {
+const newAndSave = (userId, targetUserId) => {
   const chat = new ChatModel()
 
-  chat.user_list = [userId, '5a2f901c4d6e97242e65b650']
-  chat.dialog_list = [dialog]
+  chat.user_list = [userId, targetUserId]
+  chat.dialog_list = []
 
   return chat.save()
 }

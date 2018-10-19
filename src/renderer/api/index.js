@@ -10,7 +10,15 @@ const instance = axios.create({
 
 const createAPI = (url, method, config) => {
   config = config || {}
-  console.log(config)
+  if (method === 'get' && url.indexOf('?') === -1) {
+    Object.keys(config).map((key, index) => {
+      if (index === 0) {
+        url += `?${key}=${config[key]}`
+      } else {
+        url += `&${key}=${config[key]}`
+      }
+    })
+  }
   return instance({
     url,
     method,
@@ -23,7 +31,8 @@ const u = {
   login: config => createAPI('/user/login', 'post', config),
   logout: config => createAPI('/user/logout', 'post', config),
   register: config => createAPI('/user/register', 'post', config),
-  search: config => createAPI('/user/search', 'post', config)
+  search: config => createAPI('/user/search', 'post', config),
+  chatList: config => createAPI('/chat/list', 'get', config)
   // update: config => createAPI('/u/update', 'post', config)
 }
 

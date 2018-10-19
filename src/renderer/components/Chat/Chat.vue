@@ -21,8 +21,9 @@
 </template>
 
 <script>
-import initSocket from '@/util/initSocket'
-import { mapState, mapGetters } from 'vuex'
+import { createChatSocket } from '@/util/socket'
+import { mapState, mapGetters, mapActions } from 'vuex'
+import * as api from '@/api'
 import { merge } from '@/util'
 
 import DialogueVue from '@/components/Dialogue/Dialogue.vue'
@@ -32,7 +33,7 @@ export default {
   name: 'Chat',
   data () {
     return {
-      socket: null,
+      chats: [],
       text: '',
       dialogList: []
     }
@@ -41,9 +42,21 @@ export default {
   computed: {
     ...mapState(['user']),
     ...mapGetters({
-      chatRoom: 'GET_CHAT_ROOM',
+      chatRooms: 'GET_CHAT_ROOMS',
       chatRoomActived: 'GET_ACTIVED_CHAT_ROOM'
-    })
+    }),
+    activedChat () {
+      for (let i = 0, len = this.chats.length; i < len; i++) {
+        console.log(i, this.chats[i]._id, this.chatRoomActived._id)
+        if (this.chats[i]._id === this.chatRoomActived._id) {
+          return this.chats[i]
+        }
+      }
+      // return this.chats.find(el => {
+      //   console.log('el', el)
+      //   return el._id === this.chatRoomActived._id
+      // })
+    }
   },
   watch: {
     chatRoomActived: {
@@ -56,35 +69,75 @@ export default {
   destroyed () {
     this.$socket.emit('disconnect')
   },
-  created () {
-    initSocket(this.user) // vm.$socket
+  async created () {
+    console.log('user', this.user)
+    await this.fetchChats()
+    await this.linkChats()
+    this.initSocketListener()
+    // initSocket(this.user._id, this.user.chatId) // vm.$socket
+    // this.initSocketListener()
   },
   mounted () {
-    console.log(this.user)
-    console.log('socket', this.$socket)
-    this.$socket.on('fetch chatrooms', res => {
-      console.log('res', res)
-      this.initChatRooms(res)
-    })
-    this.$socket.on('fetch message', res => {
-      console.log('fetch message', res)
-      this.text = ''
-      res.socketId !== this.socket.id && this.$dialog({
-        user: res.user,
-        text: res.text,
-        type: 'left',
-        duration: 1000
-      })
-      this.scrollBottom()
-    })
-
     setTimeout(() => {
       this.scrollBottom()
     }, 300)
   },
   methods: {
-    initChatRooms (data) {
-      this.$store.dispatch('SET_CHAT_ROOM', data)
+    ...mapActions(['SET_CHAT_ROOMS']),
+    fetchChats () {
+      return new Promise((resolve, reject) => {
+        api.u.chatList({
+          userId: this.user._id
+        }).then(res => {
+          const chatRooms = res.data.data
+          console.log('chatRooms', chatRooms)
+          this.SET_CHAT_ROOMS(chatRooms)
+          resolve(chatRooms)
+        })
+      })
+    },
+    linkChats () {
+      this.chats = []
+      this.chats = this.chatRooms.map(item => {
+        console.log(item._id)
+        let chat = createChatSocket(this.user._id, item._id)
+        chat._id = item._id
+        return chat
+      })
+      console.log('chats', this.chats)
+    },
+    initSocketListener () {
+      console.log('initSocketListener')
+      this.chats.map(socket => {
+        // 接收消息
+        socket.on('fetch message', res => {
+          console.log('fetch message res: ', res)
+          this.text = ''
+          res.socketId !== socket.id && this.$dialog({
+            user: res.user,
+            text: res.text,
+            type: 'left',
+            duration: 1000
+          })
+          this.scrollBottom()
+        })
+      })
+      // this.$socket.on('fetch chatrooms', res => {
+      //   console.log('fetch chatrooms res: ', res)
+      //   this.initChatRooms(res)
+      // })
+      // 接收消息
+      // this.$socket.on('fetch message', res => {
+      //   console.log('fetch message res: ', res)
+      //   this.text = ''
+      //   res.socketId !== this.$socket.id && this.$dialog({
+      //     user: res.user,
+      //     text: res.text,
+      //     type: 'left',
+      //     duration: 1000
+      //   })
+      //   this.scrollBottom()
+      // })
     },
     submit (text) {
       let user = {
@@ -105,13 +158,12 @@ export default {
       let obj = {
         user: user,
         text: this.text,
-        socketId: this.$socket.id,
+        socketId: this.activedChat.id,
         chatId: this.chatRoomActived._id
       }
       console.log('obj', obj)
-      this.$socket.emit('submit message', obj).then(res => {
-        console.log('submit success')
-      })
+      console.log('activedChat', this.activedChat)
+      this.activedChat.emit('submit message', obj)
 
       this.scrollBottom()
     },
