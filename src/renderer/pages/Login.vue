@@ -56,7 +56,10 @@ export default {
   },
   methods: {
     register () {
-      api.u.register({ username: this.username, password: this.password }).then(res => {
+      api.u.register({
+        username: this.username,
+        password: this.password
+      }).then(res => {
         console.log(res)
         if (res.data.success) {
           /* TODO 完成注册 */
@@ -69,15 +72,20 @@ export default {
     login () {
       // console.log(this.username)
       // console.log(this.password)
-      api.u.login({ username: this.username, password: this.password }).then(res => {
+      api.u.login({
+        username: this.username,
+        password: this.password
+      }).then(res => {
         console.log('res: ', res)
         if (res.data.success) {
           /* TODO 完成登入 */
           this.$store.dispatch('SET_USER', res.data.data)
           this.isBtnLoaing = true
           setTimeout(() => {
-            this.$router.push('/home')
-          }, 3000)
+            this.$router.push({
+              name: 'home'
+            })
+          }, 2000)
         } else {
           /* TODO 提示错误 */
           this.hintError(res.data.message)

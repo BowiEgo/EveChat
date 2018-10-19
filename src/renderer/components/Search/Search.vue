@@ -10,7 +10,7 @@
 </template>
 
 <script>
-// import * as api from '@/api'
+import * as api from '@/api'
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -28,12 +28,13 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['TOGGLE_SN_BAR']),
+    ...mapActions(['TOGGLE_SN_BAR', 'SET_SN_BAR_USER_INFO']),
     submit () {
       this.TOGGLE_SN_BAR(true)
-      // api.u.search({username: this.searchValue}).then(res => {
-      //   console.log(res)
-      // })
+      api.u.search({username: this.searchValue}).then(res => {
+        console.log(res)
+        this.SET_SN_BAR_USER_INFO(res.data.data)
+      })
     }
   }
 }

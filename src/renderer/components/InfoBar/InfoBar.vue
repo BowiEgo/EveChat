@@ -70,7 +70,7 @@ export default {
     }
   },
   mounted () {
-    console.log(this.chatRoomActived)
+    console.log('chatRoomActived', this.chatRoomActived)
   },
   methods: {
     chooseInfo (id) {

@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
+import initSocket from '../../util/initSocket'
 import { mapState, mapGetters } from 'vuex'
 
 import DialogueVue from '@/components/Dialogue/Dialogue.vue'
@@ -53,16 +53,20 @@ export default {
     }
   },
   destroyed () {
-    this.socket.emit('disconnect')
+    this.$socket.emit('disconnect')
+  },
+  created () {
+    this.$socket = initSocket(this.user)
   },
   mounted () {
     console.log(this.user)
-    this.socket = io.connect(`http://localhost:3000/chat?userId=${this.user._id}`)
-    this.socket.on('fetch chatrooms', res => {
+    // this.$socket = io.connect(`http://localhost:3000/chat?userId=${this.user._id}`)
+    console.log('socket', this.$socket)
+    this.$socket.on('fetch chatrooms', res => {
       console.log('res', res)
       this.initChatRooms(res)
     })
-    this.socket.on('fetch message', res => {
+    this.$socket.on('fetch message', res => {
       console.log('fetch message', res)
       this.text = ''
       res.socketId !== this.socket.id && this.$dialog({user: res.user, text: res.text, type: 'left', duration: 1000})
@@ -86,7 +90,7 @@ export default {
         chatId: this.chatRoomActived._id
       }
       console.log('obj', obj)
-      this.socket.emit('submit message', obj)
+      this.$socket.emit('submit message', obj)
 
       this.scrollBottom()
     },

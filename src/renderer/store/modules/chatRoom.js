@@ -8,6 +8,9 @@ const mutations = {
       state.list.push(item)
     })
   },
+  ADD_CHAT_ROOM (state, obj) {
+    state.list.unshift(obj)
+  },
   ACTIVE_CHAT_ROOM (state, id) {
     state.list.map(item => {
       item.active = item._id === id
@@ -18,6 +21,9 @@ const mutations = {
 const actions = {
   SET_CHAT_ROOM ({ commit }, arr) {
     commit('SET_CHAT_ROOM', arr)
+  },
+  ADD_CHAT_ROOM ({ commit }, obj) {
+    commit('ADD_CHAT_ROOM', obj)
   },
   ACTIVE_CHAT_ROOM ({ commit }, id) {
     commit('ACTIVE_CHAT_ROOM', id)

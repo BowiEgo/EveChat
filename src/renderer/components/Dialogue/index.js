@@ -30,4 +30,8 @@ const install = function (Vue, opts = {}) {
   Vue.prototype.$dialog = Dialogue
 }
 
-export default {install, Dialogue, DialogueVue}
+export default {
+  install,
+  Dialogue,
+  DialogueVue
+}
