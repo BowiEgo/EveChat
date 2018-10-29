@@ -32,6 +32,7 @@
 
 <script>
 import * as api from '@/api'
+import { mapActions } from 'vuex'
 import TextField from '@/components/TextField'
 import LoadingWin from '@/components/LoadingWin'
 
@@ -55,6 +56,7 @@ export default {
     LoadingWin
   },
   methods: {
+    ...mapActions(['SET_USER', 'ADD_FRIEND_REQUEST', 'FETCH_CHAT_ROOMS']),
     register () {
       api.u.register({
         username: this.username,
@@ -63,13 +65,7 @@ export default {
         console.log(res)
         if (res.data.success) {
           /* TODO 完成注册 */
-          this.$store.dispatch('SET_USER', res.data.data)
-          this.isBtnLoaing = true
-          setTimeout(() => {
-            this.$router.push({
-              name: 'home'
-            })
-          }, 2000)
+          this.handleLogin(res.data.data)
         } else {
           /* TODO 提示错误 */
           this.hintError(res.data.message)
@@ -86,18 +82,32 @@ export default {
         console.log('res: ', res)
         if (res.data.success) {
           /* TODO 完成登入 */
-          this.$store.dispatch('SET_USER', res.data.data)
-          this.isBtnLoaing = true
-          setTimeout(() => {
-            this.$router.push({
-              name: 'home'
-            })
-          }, 2000)
+          this.handleLogin(res.data.data)
         } else {
           /* TODO 提示错误 */
           this.hintError(res.data.message)
         }
       })
+    },
+    handleLogin (user) {
+      this.SET_USER(user)
+      this.isBtnLoaing = true
+      setTimeout(() => {
+        this.$socketIO.connectServerIO(user._id)
+        this.$socketIO.on(this.$socketIO.serverIO, 'chat updated', req => {
+          console.log('receive chat from ', req)
+          // this.ADD_FRIEND_REQUEST(req) // 添加请求到消息栏
+          // this.$socketIO.createChatIO(user._id, req._id)
+          this.FETCH_CHAT_ROOMS(user._id)
+        })
+        this.$socketIO.on(this.$socketIO.serverIO, 'chat joined', req => {
+          console.log('chat joined', req)
+          this.FETCH_CHAT_ROOMS(user._id)
+        })
+        this.$router.push({
+          name: 'home'
+        })
+      }, 2000)
     },
     hintError (msg) {
       let t = {

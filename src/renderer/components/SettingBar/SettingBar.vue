@@ -5,15 +5,22 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'SettingBar',
-
+  computed: {
+    ...mapGetters({
+      chatRooms: 'GET_CHAT_ROOMS'
+    })
+  },
   methods: {
     handleLogout () {
       console.log('handleLogout')
-      // disconnectSocket()
-      this.$router.push({
-        name: 'login'
+      this.$socketIO.closeAll().then(res => {
+        this.$router.push({
+          name: 'login'
+        })
       })
     }
   }

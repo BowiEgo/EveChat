@@ -6,11 +6,13 @@
     </div>
     <div class="name">{{ targetUser.name }}</div>
     <div class="button" @click="sendMsg">发消息</div>
+    <div class="button" @click="handleRecept">接受申请</div>
     <div class="button" @click="follow">关注TA</div>
   </div>
 </template>
 
 <script>
+// import { createChatSocket } from '@/util/socket'
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -41,10 +43,37 @@ export default {
       //   _id: ''
       // }
       // this.ADD_CHAT_ROOM(chat)
+      // createChatSocket(this.user._id, this.targetUser._id)
+      if (this.checkChatExist()) { // 检查与该联系人的聊天是否已开启
+        this.switchChat() // 切换当前聊天
+      } else if (this.checkIsFriend()) { // 检查是否已是好友关系
+      } else {
+        this.requestChat() // 发送聊天请求到服务器
+      }
       this.close()
     },
     follow () {
       console.log('follow')
+    },
+    requestChat () {
+      console.log('requestChat', this.$socketIO.serverIO)
+      this.$socketIO.serverIO.emit('request chat', {
+        from: this.user._id,
+        to: this.targetUser._id
+      })
+    },
+    handleRecept () {
+    },
+    switchChat () {
+      console.log('switchChat')
+    },
+    checkChatExist () {
+      console.log('checkChatExist', false)
+      return false
+    },
+    checkIsFriend () {
+      console.log('checkIsFriend', false)
+      return false
     }
   }
 }

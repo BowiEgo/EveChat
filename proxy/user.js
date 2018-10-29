@@ -29,3 +29,10 @@ exports.getByName = (userName) => {
 exports.getById = (userId) => {
   return UserModel.findById(userId)
 }
+
+exports.saveSocketId = async (userId, socketId) => {
+  console.log('saveSocketId', userId, socketId)
+  let user = await UserModel.findById(userId)
+  user.socketId = socketId
+  return user.save()
+}

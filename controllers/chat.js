@@ -5,22 +5,6 @@ const ft = require('../models/fields_table')
 
 const chatProxy = p.Chat
 
-exports.getByChatId = (chatId) => {
-  return chatProxy.getByChatId(chatId)
-}
-
-exports.getByUserId = (userId) => {
-  return chatProxy.getByUserId(userId)
-}
-
-exports.newAndSave = (userId) => {
-  return chatProxy.newAndSave(userId)
-}
-
-exports.addDialogue = (chatId, dialogue) => {
-  return chatProxy.addDialogue(chatId, dialogue)
-}
-
 exports.list = async (ctx, next) => {
   const userId = ctx.query['userId']
   let chats = await chatProxy.getByUserId(userId)
@@ -30,4 +14,9 @@ exports.list = async (ctx, next) => {
     }),
     message: '查找成功'
   })
+}
+
+exports.quest = async (ctx, next) => {
+  const fromUserId = ctx.checkBody('from').notEmpty().value
+  const toUserId = ctx.checkBody('to').notEmpty().value
 }

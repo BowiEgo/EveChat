@@ -36,6 +36,11 @@ const u = {
   // update: config => createAPI('/u/update', 'post', config)
 }
 
+const c = {
+  questChat: config => createAPI('/chat/quest', 'post', config)
+}
+
 export {
-  u
+  u,
+  c
 }

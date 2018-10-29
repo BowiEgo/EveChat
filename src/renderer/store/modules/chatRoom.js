@@ -1,3 +1,5 @@
+import * as api from '@/api'
+
 const state = { list: [] }
 
 const mutations = {
@@ -19,6 +21,15 @@ const mutations = {
 }
 
 const actions = {
+  FETCH_CHAT_ROOMS ({ commit }, userId) {
+    api.u.chatList({
+      userId: userId
+    }).then(res => {
+      const chatRooms = res.data.data
+      console.log('chatRooms', chatRooms)
+      commit('SET_CHAT_ROOMS', chatRooms)
+    })
+  },
   SET_CHAT_ROOMS ({ commit }, arr) {
     commit('SET_CHAT_ROOMS', arr)
   },

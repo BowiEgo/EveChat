@@ -21,13 +21,10 @@
 </template>
 
 <script>
-import { createChatSocket } from '@/util/socket'
 import { mapState, mapGetters, mapActions } from 'vuex'
-import * as api from '@/api'
+// import * as api from '@/api'
 import { merge } from '@/util'
-
 import DialogueVue from '@/components/Dialogue/Dialogue.vue'
-// import * as io from 'socket.io-client'
 
 export default {
   name: 'Chat',
@@ -45,11 +42,12 @@ export default {
       chatRooms: 'GET_CHAT_ROOMS',
       chatRoomActived: 'GET_ACTIVED_CHAT_ROOM'
     }),
-    activedChat () {
-      for (let i = 0, len = this.chats.length; i < len; i++) {
-        console.log(i, this.chats[i]._id, this.chatRoomActived._id)
-        if (this.chats[i]._id === this.chatRoomActived._id) {
-          return this.chats[i]
+    activedChatIO () {
+      for (let i = 0, len = this.$socketIO.chatIO.length; i < len; i++) {
+        let io = this.$socketIO.chatIO[i]
+        console.log(i, io._id, this.chatRoomActived._id)
+        if (io._id === this.chatRoomActived._id) {
+          return io
         }
       }
       // return this.chats.find(el => {
@@ -66,14 +64,16 @@ export default {
       deep: true
     }
   },
-  destroyed () {
-    this.$socket.emit('disconnect')
-  },
   async created () {
     console.log('user', this.user)
     await this.fetchChats()
-    await this.linkChats()
+    this.connectChats()
     this.initSocketListener()
+
+    // this.$socketIO.on(this.$socketIO.serverIO, 'join chat', req => {
+    //   console.log('join chat', req)
+    //   this.fetchChats()
+    // })
     // initSocket(this.user._id, this.user.chatId) // vm.$socket
     // this.initSocketListener()
   },
@@ -83,45 +83,49 @@ export default {
     }, 300)
   },
   methods: {
-    ...mapActions(['SET_CHAT_ROOMS']),
+    ...mapActions(['FETCH_CHAT_ROOMS', 'SET_CHAT_ROOMS']),
     fetchChats () {
-      return new Promise((resolve, reject) => {
-        api.u.chatList({
-          userId: this.user._id
-        }).then(res => {
-          const chatRooms = res.data.data
-          console.log('chatRooms', chatRooms)
-          this.SET_CHAT_ROOMS(chatRooms)
-          resolve(chatRooms)
-        })
-      })
+      return this.FETCH_CHAT_ROOMS(this.user._id)
     },
-    linkChats () {
-      this.chats = []
+    connectChats () {
+      // this.chats = []
       this.chats = this.chatRooms.map(item => {
-        console.log(item._id)
-        let chat = createChatSocket(this.user._id, item._id)
-        chat._id = item._id
-        return chat
+        console.log('connectChats', item._id)
+        return this.$socketIO.connectChatIO(this.user._id, item._id)
       })
       console.log('chats', this.chats)
     },
     initSocketListener () {
-      console.log('initSocketListener')
-      this.chats.map(socket => {
-        // 接收消息
-        socket.on('fetch message', res => {
-          console.log('fetch message res: ', res)
+      console.log('initSocketListener', this.$socketIO.chatIO)
+      this.$socketIO.chatIO.map(io => {
+        this.$socketIO.on(io, 'fetch message', res => {
+          console.log('fetch message res: ', res, this)
           this.text = ''
-          res.socketId !== socket.id && this.$dialog({
-            user: res.user,
-            text: res.text,
-            type: 'left',
-            duration: 1000
-          })
-          this.scrollBottom()
+          if (res.socketId !== io.id) {
+            this.$dialog({
+              user: res.user,
+              text: res.text,
+              type: 'left',
+              duration: 1000
+            })
+            this.scrollBottom()
+          }
         })
       })
+      // this.chats.map(io => {
+      //   // 接收消息
+      //   this.$socketIO.on(io, 'fetch message', res => {
+      //     console.log('fetch message res: ', res)
+      //     this.text = ''
+      //     res.socketId !== io.id && this.$dialog({
+      //       user: res.user,
+      //       text: res.text,
+      //       type: 'left',
+      //       duration: 1000
+      //     })
+      //     this.scrollBottom()
+      //   })
+      // })
       // this.$socket.on('fetch chatrooms', res => {
       //   console.log('fetch chatrooms res: ', res)
       //   this.initChatRooms(res)
@@ -140,12 +144,14 @@ export default {
       // })
     },
     submit (text) {
+      console.log('submit', text)
       let user = {
         head_img: '',
         name: '',
         nick_name: '',
         _id: ''
       }
+      let activedChatIO = this.getActivedChatIO()
 
       user = merge(user, this.user)
 
@@ -155,15 +161,14 @@ export default {
         type: 'right',
         duration: 1000
       })
+      console.log(activedChatIO)
       let obj = {
         user: user,
         text: this.text,
-        socketId: this.activedChat.id,
+        socketId: activedChatIO.id,
         chatId: this.chatRoomActived._id
       }
-      console.log('obj', obj)
-      console.log('activedChat', this.activedChat)
-      this.activedChat.emit('submit message', obj)
+      activedChatIO.emit('submit message', obj)
 
       this.scrollBottom()
     },
@@ -174,6 +179,16 @@ export default {
         let bubbleDOMList = document.querySelectorAll('.bubble')
         dialogueDOM.scrollTop = bubbleDOMList.length * dialogueDOM.offsetHeight + 120
       })
+    },
+    getActivedChatIO () {
+      console.log(this.$socketIO)
+      for (let i = 0, len = this.$socketIO.chatIO.length; i < len; i++) {
+        let io = this.$socketIO.chatIO[i]
+        console.log(i, io._id, this.chatRoomActived._id)
+        if (io._id === this.chatRoomActived._id) {
+          return io
+        }
+      }
     }
   }
 }
