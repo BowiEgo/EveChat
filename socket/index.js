@@ -7,7 +7,19 @@ module.exports = function createSocket (server) {
   console.log('createSocket')
   let io = socket(server)
   initServerIO(io)
-  initChat(io)
+}
+
+const event_list = {
+  SERVER_CONNECTED: 'SERVER_CONNECTED',
+  JOIN_CHAT: 'JOIN_CHAT',
+  JOIN_CHAT_SUCCESS: 'JOIN_CHAT_SUCCESS',
+  RECEIVE_MSG: 'RECEIVE_MSG',
+  RECEIVE_CHAT_REQUEST: 'RECEIVE_CHAT_REQUEST',
+  ERROR: 'ERROR'
+}
+
+function EMIT_EVENT (socket, eventName, params) {
+  socket.emit(event_list[eventName], params)
 }
 
 function initServerIO (io) {
@@ -15,9 +27,24 @@ function initServerIO (io) {
     let { userId } = client.handshake.query
     console.log(`${userId} connected serverIO, clientId is ${client.id}`)
     User.saveSocketId(userId, client.id)
-    client.emit('server connected')
+    EMIT_EVENT(client, 'SERVER_CONNECTED')
+    // 客户端加入聊天室
+    User.getById(userId).then(user => {
+      user.chat_ids.forEach(chatId => {
+        client.join(chatId)
+        EMIT_EVENT(
+          serverIO.to(chatId),
+          'RECEIVE_MSG', {
+            text: `client ${userId} joined chat ${chatId}`,
+            user: {
+              _id: userId
+            }
+          }
+        )
+      })
+    })
 
-    client.on('request chat', req => {  // 请求服务器建立聊天室 req: { from: '_id', to: '_id'}
+    client.on('REQUEST_CHAT', req => {  // 请求服务器建立聊天室 req: { from: '_id', to: '_id'}
       console.log('request chat', req)
       if (!req.from || !req.to) {
         console.error('request param is illegal')
@@ -32,84 +59,70 @@ function initServerIO (io) {
           Promise.all([User.getById(req.from), User.getById(req.to)])
           .then(value => {
             let fromUser = value[0], toUser = value[1]
-            serverIO.to(toUser.socketId).emit('receive chat', fromUser)
+            EMIT_EVENT(serverIO.to(toUser.socket_id), 'RECEIVE_CHAT_REQUEST', fromUser)
+            console.log(`client ${toUser.name} receive chat request from ${fromUser.name}`)
           })
         }
       })
     })
 
-    client.on('create chat', req => { // 新建聊天室
-      let { userId, userIds } = req
-      userIds = userIds && JSON.parse(userIds)
-      Chat.newAndSave(userIds).then(res => {
-        console.log('newAndSave-res', res._id)
-        chatId = res._id
-        joinChat(client, chatId) // 加入聊天室
-        client.emit('chat joined', chatId)
-        userIds.map(item => {
-          if (item !== userId) {
-            console.log('fromUserId:', item)
-            User.getById(item).then(user => { // 通知发出请求的客户端加入聊天室
-              console.log('fromUser', user)
-              console.log('join', chatId)
-              serverIO.to(user.socketId).emit('join chat', chatId)
+    client.on('CREATE_CHAT', (req, fn) => { // 新建聊天室
+      let { userId, targetIds } = req
+      let allIds = [userId, ...targetIds]
+      fn('received')
+      Chat.findByUserIds(allIds)
+      .then(chats => {
+        if (chats.length > 0) {
+          console.log(`chatroom by ${userId} and ${targetIds} is already exist`)
+          return
+        } else {
+          Chat.newAndSave(allIds).then(res => {
+            console.log('newAndSave-res', res._id)
+            let chatId = res._id
+            allIds.map(userId => {
+              console.log('userId', userId)
+              User.getById(userId).then(user => {
+                console.log(`user ${user.name} join chat`, chatId)
+                User.clearChatId(userId).then(() => {
+                  User.clearFriend(userId).then(() => {
+                    User.addChatId(userId, chatId).then(() => {
+                      let idsTemp = allIds.filter(id => {
+                        return id !== userId
+                      })
+                      console.log('add', userId, allIds, idsTemp)
+                      User.addFriend(userId, idsTemp).then(() => {
+                        EMIT_EVENT(serverIO.to(user.socket_id), 'JOIN_CHAT', chatId)
+                      })
+                    })
+                  })
+                })
+              })
             })
-          }
-        })
+          })
+        }
       })
     })
 
-    // 监听用户断开连接
-    client.on('disconnect', () => {
-      disconnect(client, userId)
+    client.on('CONNECT_CHAT', (chatId, fn) => {
+      client.join(chatId, () => {
+        let chats = Object.keys(client.rooms)
+        fn(client.rooms)
+      })
+      client.emit('JOIN_CHAT_SUCCESS', chatId)
     })
-  })
-}
 
-function initChat (io) {
-  chatIO = io.of('/chat').on('connection', client => {
-    console.log('chat', client.handshake.query)
-    let { userId, chatId } = client.handshake.query
-    if (chatId) { // 有chatId则为直接加入聊天室
-      console.log(`user ${userId} join chat ${chatId}`)
-      joinChat(client, chatId)
-      client.emit('chat joined', chatId)
-    } else {
-      client.emit('error', 'params chatId are lack')
-      disconnect(client, userId)
-    }
-    // let chatrooms = []
-    // Chat.getByUserId(userId).then(res => {
-    //   console.log('chatrooms', res)
-    //   chatrooms = res
-    //   if (chatrooms.length > 0) {
-    //     client.emit('fetch chatrooms', chatrooms)
-    //   }
-    // })
-
-    // 监听用户发送消息
-    client.on('submit message', res => {
-      console.log('message', userId, res)
-      // let chatrooms = []
-      // Chat.getByUserId(userId).then(cr => {
-      //   chatrooms = cr
-      //   if (chatrooms.length === 0) {
-      //     Chat.newAndSave(userId, res)
-      //     return
-      //   }
-      //   client.emit('fetch chatrooms', chatrooms)
-      // })
-      // client.emit('fetch chatrooms', chatrooms)
+    client.on('SEND_MSG', (res, fn) => {
+      console.log('send msg', res)
+      let { chatId, msg } = res
       let dialogue = {
-        text: res.text,
-        user: res.user
+        text: msg.text,
+        user: msg.user
       }
-      // console.log('dialogue', userId, dialogue)
-      Chat.addDialogue(res.chatId, dialogue)
-      chatIO.to(chatId).emit('fetch message', res)
+      Chat.addDialogue(chatId, dialogue)
+      EMIT_EVENT(serverIO.to(chatId), 'RECEIVE_MSG', msg)
     })
-    
-    // 监听用户退出聊天
+
+    // 监听用户断开连接
     client.on('disconnect', () => {
       disconnect(client, userId)
     })

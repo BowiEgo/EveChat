@@ -9,8 +9,9 @@ const schema = new Schema({
   head_img: String,
   name: String,
   password: String,
-  socketId: String, // 与服务器所链接的socketId
+  socket_id: String, // 与服务器所链接的socketId
   fd_list: [String],  // 好友列表
+  chat_ids: [String], // 聊天室Id列表
   create_at: {
     type: Date,
     default: Date.now

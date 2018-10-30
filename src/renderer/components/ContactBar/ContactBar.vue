@@ -1,16 +1,17 @@
 <template>
   <div id="contact-bar">
     <div class="contact-list">
-      <list-item
+      <!-- <list-item
         :img="'http://img.souche.com/20161230/png/8bb4f0fd45ed6ae26533eadd85f0f7ea.png'"
         :text="'新朋友'"
         :badgeNum="newFriendNum"
         @click="handleClickNewFriend">
-      </list-item>
+      </list-item> -->
       <div
-        v-for="(item, index) in contactList"
+        v-for="(item, index) in friendList"
         :key="index"
-        class="contact-item">
+        class="contact-item"
+        @click="handleClickFriend(index)">
         <div class="head-img">
           <img :src="item.head_img">
         </div>
@@ -31,24 +32,11 @@ export default {
   },
   data () {
     return {
-      contactList: [
-        {
-          head_img: '',
-          name: '西瓜'
-        },
-        {
-          head_img: '',
-          name: '苹果'
-        },
-        {
-          head_img: '',
-          name: '香蕉'
-        }
-      ]
     }
   },
   computed: {
     ...mapGetters({
+      friendList: 'GET_FRIEND_LIST',
       friendReQuest: 'GET_FRIEND_REQUEST'
     }),
     newFriendNum () {
@@ -61,6 +49,10 @@ export default {
       console.log('handleClickNewFriend')
       this.TOGGLE_SN_BAR(true)
       this.SET_SN_BAR_USER_INFO(this.friendReQuest[0])
+    },
+    handleClickFriend (index) {
+      this.TOGGLE_SN_BAR(true)
+      this.SET_SN_BAR_USER_INFO(this.friendList[index])
     }
   }
 }

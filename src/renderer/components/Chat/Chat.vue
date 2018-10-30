@@ -40,26 +40,14 @@ export default {
     ...mapState(['user']),
     ...mapGetters({
       chatRooms: 'GET_CHAT_ROOMS',
-      chatRoomActived: 'GET_ACTIVED_CHAT_ROOM'
-    }),
-    activedChatIO () {
-      for (let i = 0, len = this.$socketIO.chatIO.length; i < len; i++) {
-        let io = this.$socketIO.chatIO[i]
-        console.log(i, io._id, this.chatRoomActived._id)
-        if (io._id === this.chatRoomActived._id) {
-          return io
-        }
-      }
-      // return this.chats.find(el => {
-      //   console.log('el', el)
-      //   return el._id === this.chatRoomActived._id
-      // })
-    }
+      chatRoomActived: 'GET_ACTIVED_CHAT_ROOM',
+      chatRoomActivedId: 'GET_ACTIVED_CHAT_ROOM_ID'
+    })
   },
   watch: {
-    chatRoomActived: {
+    chatRoomActivedId: {
       handler: function (val) {
-        this.dialogList = val.dialog_list
+        this.dialogList = this.chatRoomActived.dialog_list
       },
       deep: true
     }
@@ -67,15 +55,7 @@ export default {
   async created () {
     console.log('user', this.user)
     await this.fetchChats()
-    this.connectChats()
     this.initSocketListener()
-
-    // this.$socketIO.on(this.$socketIO.serverIO, 'join chat', req => {
-    //   console.log('join chat', req)
-    //   this.fetchChats()
-    // })
-    // initSocket(this.user._id, this.user.chatId) // vm.$socket
-    // this.initSocketListener()
   },
   mounted () {
     setTimeout(() => {
@@ -83,93 +63,50 @@ export default {
     }, 300)
   },
   methods: {
-    ...mapActions(['FETCH_CHAT_ROOMS', 'SET_CHAT_ROOMS']),
+    ...mapActions(['FETCH_CHAT_ROOMS', 'SET_CHAT_ROOMS', 'ADD_DIALOGUE']),
     fetchChats () {
       return this.FETCH_CHAT_ROOMS(this.user._id)
     },
-    connectChats () {
-      // this.chats = []
-      this.chats = this.chatRooms.map(item => {
-        console.log('connectChats', item._id)
-        return this.$socketIO.connectChatIO(this.user._id, item._id)
-      })
-      console.log('chats', this.chats)
-    },
     initSocketListener () {
-      console.log('initSocketListener', this.$socketIO.chatIO)
-      this.$socketIO.chatIO.map(io => {
-        this.$socketIO.on(io, 'fetch message', res => {
-          console.log('fetch message res: ', res, this)
-          this.text = ''
-          if (res.socketId !== io.id) {
-            this.$dialog({
-              user: res.user,
-              text: res.text,
-              type: 'left',
-              duration: 1000
-            })
-            this.scrollBottom()
-          }
-        })
+      console.log('initSocketListener')
+      this.$socketIO.on('RECEIVE_MSG', res => {
+        this.text = ''
+        console.log('reveive message res: ', res)
+        if (res.user._id !== this.user._id) {
+          this.$dialog({
+            user: res.user,
+            text: res.text,
+            type: 'left',
+            duration: 1000
+          })
+          this.scrollBottom()
+        } else {
+          console.log('submit message success', res)
+        }
       })
-      // this.chats.map(io => {
-      //   // 接收消息
-      //   this.$socketIO.on(io, 'fetch message', res => {
-      //     console.log('fetch message res: ', res)
-      //     this.text = ''
-      //     res.socketId !== io.id && this.$dialog({
-      //       user: res.user,
-      //       text: res.text,
-      //       type: 'left',
-      //       duration: 1000
-      //     })
-      //     this.scrollBottom()
-      //   })
-      // })
-      // this.$socket.on('fetch chatrooms', res => {
-      //   console.log('fetch chatrooms res: ', res)
-      //   this.initChatRooms(res)
-      // })
-      // 接收消息
-      // this.$socket.on('fetch message', res => {
-      //   console.log('fetch message res: ', res)
-      //   this.text = ''
-      //   res.socketId !== this.$socket.id && this.$dialog({
-      //     user: res.user,
-      //     text: res.text,
-      //     type: 'left',
-      //     duration: 1000
-      //   })
-      //   this.scrollBottom()
-      // })
     },
     submit (text) {
       console.log('submit', text)
-      let user = {
+      let user = merge({
         head_img: '',
         name: '',
         nick_name: '',
         _id: ''
-      }
-      let activedChatIO = this.getActivedChatIO()
-
-      user = merge(user, this.user)
-
+      }, this.user)
       this.$dialog({
         user: user,
         text: text,
         type: 'right',
         duration: 1000
       })
-      console.log(activedChatIO)
-      let obj = {
+      this.ADD_DIALOGUE(this.chatRoomActived._id, {
         user: user,
-        text: this.text,
-        socketId: activedChatIO.id,
-        chatId: this.chatRoomActived._id
-      }
-      activedChatIO.emit('submit message', obj)
-
+        text: text
+      })
+      this.$socketIO.sendMsg(this.chatRoomActived._id, {
+        user: user,
+        text: text
+      })
       this.scrollBottom()
     },
     scrollBottom () {

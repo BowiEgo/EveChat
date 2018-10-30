@@ -44,6 +44,7 @@ export default {
       let result = ''
       if (this.chatRoomActived) {
         this.chatRoomActived.user_list.map(item => {
+          console.log('otherUser-item', item)
           if (item !== this.user._id) {
             result = item
           }

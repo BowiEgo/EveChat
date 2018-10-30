@@ -19,118 +19,108 @@ function CallBacks () {
   }
 }
 
-/**
- * connectServerIO
- * createChatIO
- * connectChatIO
- * event: ['']
- * eventListener: ['server connected', 'receive chat']
- */
+function getHandler (path, query, io) {
+  if (path === 'server') {
+    return this._handleServerConnect(query, io)
+  }
+}
 
-function SocketIO (options) {
-  this.options = options
-  return SocketIO.prototype._init()
+export default function SocketIO (options) {
+  return SocketIO.prototype._init(options)
 }
 
 SocketIO.prototype = {
-  _init: function () {
+  _init: function (options) {
+    this.options = options || {}
     this.serverIO = null
-    this.chatIO = []
-  },
-
-  on: function (io, eventName, cb) {
-    const cbs = new CallBacks()
-    cbs.addCb(cb)
-    io.on(eventName, res => cbs.getCbs(res))
-  },
-
-  connectServerIO: function (userId) {
-    console.log('connectServerIO', userId)
-    return this._connect('server', {
-      userId: userId
-    })
-  },
-
-  createChatIO: function (userId, targetId) {
-    console.log('createChatIO', userId, targetId)
-    this.serverIO.emit('create chat', {
-      userId: userId,
-      userIds: JSON.stringify([userId, targetId])
-    })
-  },
-
-  connectChatIO: function (userId, chatId) {
-    console.log('connectChatIO', userId, chatId)
-    return this._connect('chat', {
-      userId: userId,
-      chatId: chatId
-    })
-  },
-
-  closeAll: function () {
-    console.log('closeAll', this)
-    return new Promise((resolve, reject) => {
-      Promise.all([
-        !!this.serverIO && this.serverIO.close(),
-        this.chatIO.map(io => {
-          return io.close()
-        })
-      ]).then(res => {
-        this.serverIO = null
-        this.chatIO = []
-        resolve()
-      })
-    })
+    this.userId = this.options.userId || ''
   },
 
   _connect: function (path, query) {
     let IO = io(`${socketServer}/${path}`, {
       query: query
     }).open()
-
     return getHandler.call(this, path, query, IO)
   },
 
   _handleServerConnect: function (query, io) {
-    this.on(io, 'server connected', req => {
-      console.log('server connected, welcome!')
+    this.on(io, 'SERVER_CONNECTED', res => {
+      console.log('SERVER_CONNECTED, welcome!')
     })
-    this.on(io, 'join chat', chatId => {
-      console.log('join chat', chatId)
-      this.connectChatIO(query.userId, chatId)
+    this.on(io, 'RECEIVE_CHAT_REQUEST', res => {
+      console.log('RECEIVE_CHAT_REQUEST', res)
+      this.createChat(query.userId, res._id)
     })
-    // this.on(io, 'chat joined', chatId => {
-    //   console.log('chat joined', chatId)
-    // })
+    this.on(io, 'JOIN_CHAT', chatId => {
+      console.log('JOIN_CHAT', chatId)
+      this.serverIO.emit('CONNECT_CHAT', chatId, res => {
+        console.log('CONNECT_CHAT_RES', res)
+      })
+    })
+    this.on(io, 'JOIN_CHAT_SUCCESS', chatId => {
+      console.log('JOIN_CHAT_SUCCESS', chatId)
+    })
+    this.on(io, 'RECEIVE_MSG', msg => {
+      console.log('RECEIVE_MSG', msg)
+    })
     this.serverIO = io
     return io
   },
 
-  _handleChatConnect: function (query, io) {
-    if (this.chatIO.indexOf(io) === -1) {
-      this.chatIO.push(io)
+  on: function (io, eventName, cb) {
+    if (arguments.length < 3) {
+      io = this.serverIO
+      eventName = arguments[0]
+      cb = arguments[1]
     }
-    io._id = query.chatId
-    return io
+    const cbs = new CallBacks()
+    cbs.addCb(cb)
+    io.on(eventName, res => cbs.getCbs(res))
   },
 
-  _handleChatCreated: function (query, io) {
-    if (this.chatIO.indexOf(io) === -1) {
-      this.chatIO.push(io)
-    }
-    io._id = query.chatId
-    return io
+  close: function () {
+    console.log('CLOSE', this)
+    return new Promise((resolve, reject) => {
+      Promise.all([
+        !!this.serverIO && this.serverIO.close()
+      ]).then(res => {
+        this.serverIO = null
+        resolve()
+      })
+    })
+  },
+
+  connectServer: function (userId) {
+    this.userId = userId || this.userId
+    console.log('CONNECT_SERVER', this.userId)
+    return this._connect('server', {
+      userId: this.userId
+    })
+  },
+
+  createChat: function (fromUserId, toUserId) {
+    this.serverIO.emit('CREATE_CHAT', {
+      userId: fromUserId,
+      targetIds: [toUserId]
+    }, res => {
+      console.log(res)
+    })
+  },
+
+  sendRequest: function (fromUserId, toUserId) {
+    this.serverIO.emit('REQUEST_CHAT', {
+      from: fromUserId,
+      to: toUserId
+    })
+  },
+
+  sendMsg: function (chatId, msg) {
+    console.log('SEND_MSG', chatId, msg)
+    this.serverIO.emit('SEND_MSG', {
+      chatId: chatId,
+      msg: msg
+    }, res => {
+      console.log(res)
+    })
   }
 }
-
-function getHandler (path, query, io) {
-  if (path === 'server') {
-    return this._handleServerConnect(query, io)
-  } else if (query.chatId) {
-    return this._handleChatConnect(query, io)
-  } else if (query.userIds) {
-    return this._handleChatCreated(query, io)
-  }
-}
-
-export default SocketIO

@@ -1,6 +1,8 @@
 import * as api from '@/api'
 
-const state = { list: [] }
+const state = {
+  list: []
+}
 
 const mutations = {
   SET_CHAT_ROOMS (state, arr) {
@@ -17,12 +19,21 @@ const mutations = {
     state.list.map(item => {
       item.active = item._id === id
     })
+  },
+  ADD_DIALOGUE (state, id, dialogue) {
+    console.log('ADD_DIALOGUE', id, dialogue)
+    let room = state.list.find(item => {
+      console.log(item._id)
+      return item._id === id
+    })
+    console.log('ADD_DIALOGUE', room)
+    room.dialog_list.push(dialogue)
   }
 }
 
 const actions = {
   FETCH_CHAT_ROOMS ({ commit }, userId) {
-    api.u.chatList({
+    return api.c.list({
       userId: userId
     }).then(res => {
       const chatRooms = res.data.data
@@ -38,6 +49,9 @@ const actions = {
   },
   ACTIVE_CHAT_ROOM ({ commit }, id) {
     commit('ACTIVE_CHAT_ROOM', id)
+  },
+  ADD_DIALOGUE ({ commit }, id, dialogue) {
+    commit('ADD_DIALOGUE', id, dialogue)
   }
 }
 
@@ -54,6 +68,16 @@ const getters = {
       let item = state.list[i]
       if (item.active) {
         return item
+      }
+    }
+    return ''
+  },
+  GET_ACTIVED_CHAT_ROOM_ID (state) {
+    for (let i in state.list) {
+      let item = state.list[i]
+      if (item.active) {
+        state.activeId = item._id
+        return item._id
       }
     }
     return ''

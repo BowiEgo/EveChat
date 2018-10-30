@@ -32,11 +32,13 @@ const u = {
   logout: config => createAPI('/user/logout', 'post', config),
   register: config => createAPI('/user/register', 'post', config),
   search: config => createAPI('/user/search', 'post', config),
-  chatList: config => createAPI('/chat/list', 'get', config)
+  getFriendInfoList: config => createAPI('/user/friend', 'get', config),
+  removeFriend: config => createAPI('/user/friend/remove', 'post', config)
   // update: config => createAPI('/u/update', 'post', config)
 }
 
 const c = {
+  list: config => createAPI('/chat/list', 'get', config),
   questChat: config => createAPI('/chat/quest', 'post', config)
 }
 

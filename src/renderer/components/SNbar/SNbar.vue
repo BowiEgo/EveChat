@@ -2,16 +2,18 @@
   <div id="SNbar">
     <div @click="close">X</div>
     <div class="head-img">
-      <img :src="targetUser.head_img" />
+      <img :src="toUser.head_img" />
     </div>
-    <div class="name">{{ targetUser.name }}</div>
+    <div class="name">{{ toUser.name }}</div>
     <div class="button" @click="sendMsg">发消息</div>
     <div class="button" @click="handleRecept">接受申请</div>
     <div class="button" @click="follow">关注TA</div>
+    <div class="button" @click="removeFriend">删除好友</div>
   </div>
 </template>
 
 <script>
+import * as api from '@/api'
 // import { createChatSocket } from '@/util/socket'
 import { mapState, mapGetters, mapActions } from 'vuex'
 
@@ -26,24 +28,23 @@ export default {
     ...mapState(['user']),
     ...mapGetters({
       isShow: 'GET_SN_BAR_STATE',
-      targetUser: 'GET_SN_BAR_USER_INFO'
+      toUser: 'GET_SN_BAR_USER_INFO'
     })
   },
   methods: {
-    ...mapActions(['TOGGLE_SN_BAR', 'ADD_CHAT_ROOM']),
+    ...mapActions(['TOGGLE_SN_BAR', 'ADD_CHAT_ROOM', 'FETCH_CHAT_ROOMS', 'FETCH_FRIEND_LIST']),
     close () {
       this.TOGGLE_SN_BAR(false)
     },
     sendMsg () {
-      console.log('sendMsg')
       // let chat = {
       //   active: true,
       //   dialog_list: [],
-      //   user_list: [this.user._id, this.targetUser._id],
+      //   user_list: [this.user._id, this.toUser._id],
       //   _id: ''
       // }
       // this.ADD_CHAT_ROOM(chat)
-      // createChatSocket(this.user._id, this.targetUser._id)
+      // createChatSocket(this.user._id, this.toUser._id)
       if (this.checkChatExist()) { // 检查与该联系人的聊天是否已开启
         this.switchChat() // 切换当前聊天
       } else if (this.checkIsFriend()) { // 检查是否已是好友关系
@@ -55,12 +56,22 @@ export default {
     follow () {
       console.log('follow')
     },
-    requestChat () {
-      console.log('requestChat', this.$socketIO.serverIO)
-      this.$socketIO.serverIO.emit('request chat', {
-        from: this.user._id,
-        to: this.targetUser._id
+    removeFriend () {
+      console.log('removeFriend')
+      api.u.removeFriend({
+        userId: this.user._id,
+        friendId: this.toUser._id
+      }).then(res => {
+        console.log('removeFriend', res)
+        if (res.data.success) {
+          this.FETCH_CHAT_ROOMS(this.user._id)
+          this.FETCH_FRIEND_LIST(this.user._id)
+        }
       })
+    },
+    requestChat () {
+      console.log('sendRequest', this.$socketIO.serverIO)
+      this.$socketIO.sendRequest(this.user._id, this.toUser._id)
     },
     handleRecept () {
     },

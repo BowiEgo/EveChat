@@ -32,7 +32,7 @@
 
 <script>
 import * as api from '@/api'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import TextField from '@/components/TextField'
 import LoadingWin from '@/components/LoadingWin'
 
@@ -55,36 +55,31 @@ export default {
     TextField,
     LoadingWin
   },
+  computed: {
+    ...mapState(['user'])
+  },
   methods: {
-    ...mapActions(['SET_USER', 'ADD_FRIEND_REQUEST', 'FETCH_CHAT_ROOMS']),
+    ...mapActions(['SET_USER', 'ADD_FRIEND_REQUEST', 'FETCH_CHAT_ROOMS', 'FETCH_FRIEND_LIST']),
     register () {
       api.u.register({
         username: this.username,
         password: this.password
       }).then(res => {
-        console.log(res)
         if (res.data.success) {
-          /* TODO 完成注册 */
           this.handleLogin(res.data.data)
         } else {
-          /* TODO 提示错误 */
           this.hintError(res.data.message)
         }
       })
     },
     login () {
-      // console.log(this.username)
-      // console.log(this.password)
       api.u.login({
         username: this.username,
         password: this.password
       }).then(res => {
-        console.log('res: ', res)
         if (res.data.success) {
-          /* TODO 完成登入 */
           this.handleLogin(res.data.data)
         } else {
-          /* TODO 提示错误 */
           this.hintError(res.data.message)
         }
       })
@@ -93,21 +88,24 @@ export default {
       this.SET_USER(user)
       this.isBtnLoaing = true
       setTimeout(() => {
-        this.$socketIO.connectServerIO(user._id)
-        this.$socketIO.on(this.$socketIO.serverIO, 'chat updated', req => {
-          console.log('receive chat from ', req)
-          // this.ADD_FRIEND_REQUEST(req) // 添加请求到消息栏
-          // this.$socketIO.createChatIO(user._id, req._id)
-          this.FETCH_CHAT_ROOMS(user._id)
+        this.connectServer().then(() => {
+          this.FETCH_FRIEND_LIST(this.user._id)
+          this.$router.push({
+            name: 'home'
+          })
         })
-        this.$socketIO.on(this.$socketIO.serverIO, 'chat joined', req => {
-          console.log('chat joined', req)
-          this.FETCH_CHAT_ROOMS(user._id)
+      }, 1000)
+    },
+    connectServer () {
+      return new Promise((resolve, reject) => {
+        this.$socketIO.connectServer(this.user._id)
+        this.$socketIO.on('JOIN_CHAT_SUCCESS', chatId => {
+          console.log('FETCH_CHAT_ROOMS')
+          this.FETCH_FRIEND_LIST(this.user._id)
+          this.FETCH_CHAT_ROOMS(this.user._id)
         })
-        this.$router.push({
-          name: 'home'
-        })
-      }, 2000)
+        resolve()
+      })
     },
     hintError (msg) {
       let t = {

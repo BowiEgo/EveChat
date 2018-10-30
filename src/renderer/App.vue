@@ -13,7 +13,6 @@ export default {
   methods: {
     test () {
       console.log('test')
-      // this.$socketIO.createChatIO('5a2f901c4d6e97242e65b650', '5bc99621dbd6c82bc45d86e3')
     }
   }
 }
