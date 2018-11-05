@@ -12,7 +12,7 @@
       <div class="chatroom-wrap">
         <chat></chat>
       </div>
-      <div class="SNbar-wrap" :class="{unfold: showSNbar}">
+      <div class="SNbar-wrap" :class="{ unfold: showSNbar }">
         <SN-bar></SN-bar>
       </div>
     </main>
@@ -108,6 +108,7 @@ main {
 
 .infobar-wrap {
   width: 0;
+  // width: 300px;
   background: #fbfaf7;
   background: #f0f3f5;
   transition: all .3s ease;
@@ -135,7 +136,7 @@ main {
   // background: #f0f3f5;
   // background-color: grey;
   transition: all .3s ease;
-  transform-origin: 0 50%;
+  transform-origin: 100% 50%;
   transform: scaleX(0);
   &.unfold {
     width: 300px;

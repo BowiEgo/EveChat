@@ -33,7 +33,10 @@ const u = {
   register: config => createAPI('/user/register', 'post', config),
   search: config => createAPI('/user/search', 'post', config),
   getFriendInfoList: config => createAPI('/user/friend', 'get', config),
-  removeFriend: config => createAPI('/user/friend/remove', 'post', config)
+  removeFriend: config => createAPI('/user/friend/remove', 'post', config),
+  addUnread: config => createAPI('/user/unread/add', 'post', config),
+  minusUnread: config => createAPI('/user/unread/minus', 'post', config),
+  clearUnread: config => createAPI('/user/unread/clear', 'post', config)
   // update: config => createAPI('/u/update', 'post', config)
 }
 

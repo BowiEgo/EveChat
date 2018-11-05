@@ -7,6 +7,7 @@ import store from './store'
 import SocketIO from './socket'
 
 import Dialogue from '@/components/Dialogue'
+import MessageBlur from '@/components/MessageBlur'
 
 import Icon from 'vue-svg-icon/Icon.vue'
 Vue.component('icon', Icon)
@@ -18,6 +19,7 @@ Vue.prototype.$socketIO = new SocketIO()
 Vue.config.productionTip = false
 
 Vue.use(Dialogue)
+Vue.use(MessageBlur)
 
 /* eslint-disable no-new */
 new Vue({

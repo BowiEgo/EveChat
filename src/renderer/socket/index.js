@@ -44,6 +44,9 @@ SocketIO.prototype = {
   },
 
   _handleServerConnect: function (query, io) {
+    this.on(io, 'disconnect', res => {
+      console.log('disconnect', res)
+    })
     this.on(io, 'SERVER_CONNECTED', res => {
       console.log('SERVER_CONNECTED, welcome!')
     })

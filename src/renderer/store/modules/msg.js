@@ -1,4 +1,7 @@
-const state = { friendReQuest: [] }
+const state = {
+  friendReQuest: [],
+  unreadMsgNum: 0
+}
 
 const mutations = {
   ADD_FRIEND_REQUEST (state, obj) {

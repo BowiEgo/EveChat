@@ -9,6 +9,7 @@
           :class="{ active: choosed === 'chat' }"
           @click="handleClick('chat')">
           <icon class="task-icon" name="bubble_smile" scale="3"></icon>
+          <badge :info="msg.unreadMsgNum" style="position: absolute; top:0; right: 10px;"></badge>
         </li>
         <!-- <li class="task-item" @click="handleClick">
           <icon class="task-icon" name="group" scale="3">多人聊天室</icon>
@@ -30,9 +31,13 @@
 
 <script>
 import { mapState } from 'vuex'
+import Badge from '../Badge'
 
 export default {
   name: 'TaskBar',
+  components: {
+    Badge
+  },
   data () {
     return {
     }
@@ -44,11 +49,10 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user'])
+    ...mapState(['user', 'msg'])
   },
   methods: {
     handleClick (type) {
-      console.log('handleClick', type)
       this.$emit('click', type)
     }
   }
@@ -88,6 +92,7 @@ export default {
 }
 
 .task-item {
+  position: relative;
   width: 100%;
   height: 50px;
   margin-top: 16px;

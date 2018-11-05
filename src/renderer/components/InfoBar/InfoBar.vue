@@ -6,6 +6,7 @@
         v-for="(item, index) in infoList"
         :show="unfolded"
         v-if="unfolded && !!item"
+        :unread-msg-num="getUnreadMsgNum(item._id)"
         :key="index"
         :actived="item._id === chatRoomActived._id"
         @click.native="chooseInfo(item._id)"
@@ -60,6 +61,7 @@ export default {
               })
             })
             info['other_user_list'] = otherUserList
+            console.log(this.infoList)
             this.$set(this.infoList, index, info)
           }
         })
@@ -73,6 +75,10 @@ export default {
   methods: {
     chooseInfo (id) {
       this.$store.dispatch('ACTIVE_CHAT_ROOM', id)
+    },
+    getUnreadMsgNum (id) {
+      console.log('getUnreadMsgNum', id, this.user.unread_num_list, this.user.unread_num_list[id])
+      return this.user.unread_num_list[id]
     }
   }
 }
