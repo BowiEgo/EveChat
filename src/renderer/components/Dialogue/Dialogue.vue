@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :class="typeClass">
+  <div class="dialogue-bubble container" :class="typeClass">
     <transition name="fade">
   		<div class="avatar" v-if="isShow">
         <img v-if="user.head_img" :src="user.head_img">

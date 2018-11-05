@@ -20,7 +20,8 @@ const mutations = {
       item.active = item._id === id
     })
   },
-  ADD_DIALOGUE (state, id, dialogue) {
+  ADD_DIALOGUE (state, obj) {
+    let { id, dialogue } = obj
     console.log('ADD_DIALOGUE', id, dialogue)
     let room = state.list.find(item => {
       console.log(item._id)
@@ -28,6 +29,7 @@ const mutations = {
     })
     console.log('ADD_DIALOGUE', room)
     room.dialog_list.push(dialogue)
+    console.log('chatroom-state', state)
   }
 }
 
@@ -50,8 +52,9 @@ const actions = {
   ACTIVE_CHAT_ROOM ({ commit }, id) {
     commit('ACTIVE_CHAT_ROOM', id)
   },
-  ADD_DIALOGUE ({ commit }, id, dialogue) {
-    commit('ADD_DIALOGUE', id, dialogue)
+  ADD_DIALOGUE ({ commit }, obj) {
+    console.log('action-ADD_DIALOGUE', obj)
+    commit('ADD_DIALOGUE', obj)
   }
 }
 

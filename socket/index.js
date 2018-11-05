@@ -35,6 +35,7 @@ function initServerIO (io) {
         EMIT_EVENT(
           serverIO.to(chatId),
           'RECEIVE_MSG', {
+            chatId: chatId,
             text: `client ${userId} joined chat ${chatId}`,
             user: {
               _id: userId
@@ -83,17 +84,13 @@ function initServerIO (io) {
               console.log('userId', userId)
               User.getById(userId).then(user => {
                 console.log(`user ${user.name} join chat`, chatId)
-                User.clearChatId(userId).then(() => {
-                  User.clearFriend(userId).then(() => {
-                    User.addChatId(userId, chatId).then(() => {
-                      let idsTemp = allIds.filter(id => {
-                        return id !== userId
-                      })
-                      console.log('add', userId, allIds, idsTemp)
-                      User.addFriend(userId, idsTemp).then(() => {
-                        EMIT_EVENT(serverIO.to(user.socket_id), 'JOIN_CHAT', chatId)
-                      })
-                    })
+                User.addChatId(userId, chatId).then(() => {
+                  let idsTemp = allIds.filter(id => {
+                    return id !== userId
+                  })
+                  console.log('add', userId, allIds, idsTemp)
+                  User.addFriend(userId, idsTemp).then(() => {
+                    EMIT_EVENT(serverIO.to(user.socket_id), 'JOIN_CHAT', chatId)
                   })
                 })
               })
@@ -115,11 +112,12 @@ function initServerIO (io) {
       console.log('send msg', res)
       let { chatId, msg } = res
       let dialogue = {
+        chatId: chatId,
         text: msg.text,
         user: msg.user
       }
       Chat.addDialogue(chatId, dialogue)
-      EMIT_EVENT(serverIO.to(chatId), 'RECEIVE_MSG', msg)
+      EMIT_EVENT(serverIO.to(chatId), 'RECEIVE_MSG', dialogue)
     })
 
     // 监听用户断开连接

@@ -1,6 +1,6 @@
 <template>
   <div id="settingBar">
-    <button @click="handleLogout">退出</button>
+    <div class="quit" @click="handleLogout">退出</div>
   </div>
 </template>
 
@@ -32,5 +32,18 @@ export default {
   padding: 16px;
   overflow-y: scroll;
   height: 100vh;
+}
+.quit {
+  width: 100%;
+  height: 40px;
+  background-color: #969696;
+  color: #fff;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    background-color: #5abdea;
+  }
 }
 </style>

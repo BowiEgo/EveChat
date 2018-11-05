@@ -1,5 +1,6 @@
 <template>
   <div id="contact-bar">
+    <search></search>
     <div class="contact-list">
       <!-- <list-item
         :img="'http://img.souche.com/20161230/png/8bb4f0fd45ed6ae26533eadd85f0f7ea.png'"
@@ -11,6 +12,7 @@
         v-for="(item, index) in friendList"
         :key="index"
         class="contact-item"
+        :class="{ 'actived': index === activedIndex }"
         @click="handleClickFriend(index)">
         <div class="head-img">
           <img :src="item.head_img">
@@ -24,14 +26,17 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import ListItem from './ListItem'
+import Search from '@/components/Search'
 
 export default {
   name: 'ContactBar',
   components: {
-    ListItem
+    ListItem,
+    Search
   },
   data () {
     return {
+      activedIndex: -1
     }
   },
   computed: {
@@ -44,14 +49,16 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['TOGGLE_SN_BAR', 'SET_SN_BAR_USER_INFO']),
+    ...mapActions(['TOGGLE_SN_BAR', 'SET_SN_BAR_USER_INFO', 'TOGGLE_INFO_BAR']),
     handleClickNewFriend () {
       console.log('handleClickNewFriend')
       this.TOGGLE_SN_BAR(true)
       this.SET_SN_BAR_USER_INFO(this.friendReQuest[0])
     },
     handleClickFriend (index) {
+      this.activedIndex = index
       this.TOGGLE_SN_BAR(true)
+      this.TOGGLE_INFO_BAR(false)
       this.SET_SN_BAR_USER_INFO(this.friendList[index])
     }
   }
@@ -60,6 +67,7 @@ export default {
 
 <style lang="scss" scoped>
 #contact-bar {
+  padding: 16px;
   overflow-y: scroll;
   height: 100vh;
 }
@@ -69,14 +77,22 @@ export default {
 .contact-item {
   width: 100%;
   height: 60px;
+  padding-left: 10px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: space-around;
+  border-radius: 5px;
+  &.actived, &:hover {
+    color: #fff;
+    background-color: #5abdea;
+  }
   .head-img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     overflow: hidden;
+    margin-right: 10px;
     img {
       width: 100%;
       height: 100%;

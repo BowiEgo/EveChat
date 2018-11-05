@@ -31,8 +31,7 @@ export default {
   data () {
     return {
       chats: [],
-      text: '',
-      dialogList: []
+      text: ''
     }
   },
   components: { DialogueVue },
@@ -42,12 +41,16 @@ export default {
       chatRooms: 'GET_CHAT_ROOMS',
       chatRoomActived: 'GET_ACTIVED_CHAT_ROOM',
       chatRoomActivedId: 'GET_ACTIVED_CHAT_ROOM_ID'
-    })
+    }),
+    dialogList () {
+      return this.chatRoomActived.dialog_list
+    }
   },
   watch: {
     chatRoomActivedId: {
       handler: function (val) {
-        this.dialogList = this.chatRoomActived.dialog_list
+        console.log('chatRoomActivedId', val, this.chatRoomActived)
+        this.scrollBottom()
       },
       deep: true
     }
@@ -72,16 +75,41 @@ export default {
       this.$socketIO.on('RECEIVE_MSG', res => {
         this.text = ''
         console.log('reveive message res: ', res)
-        if (res.user._id !== this.user._id) {
-          this.$dialog({
-            user: res.user,
-            text: res.text,
-            type: 'left',
-            duration: 1000
-          })
-          this.scrollBottom()
+        console.log('reveive message res: ', res.chatId, this.chatRoomActivedId)
+        const checkUserId = res.user._id !== this.user._id
+        const checkChatId = res.chatId === this.chatRoomActivedId
+        console.log('reveive message res: ', checkUserId, checkChatId)
+        if (checkChatId) {
+          if (checkUserId) {
+            this.$dialog({
+              user: res.user,
+              text: res.text,
+              type: 'left',
+              duration: 1000
+            }).then(id => {
+              setTimeout(() => {
+                this.$destroyDialog(id)
+                this.ADD_DIALOGUE({
+                  id: this.chatRoomActived._id,
+                  dialogue: {
+                    user: res.user,
+                    text: res.text
+                  }
+                })
+              }, 30)
+            })
+            this.scrollBottom()
+          } else {
+            console.log('submit message success', res)
+          }
         } else {
-          console.log('submit message success', res)
+          this.ADD_DIALOGUE({
+            id: res.chatId,
+            dialogue: {
+              user: res.user,
+              text: res.text
+            }
+          })
         }
       })
     },
@@ -98,10 +126,17 @@ export default {
         text: text,
         type: 'right',
         duration: 1000
-      })
-      this.ADD_DIALOGUE(this.chatRoomActived._id, {
-        user: user,
-        text: text
+      }).then(id => {
+        setTimeout(() => {
+          this.$destroyDialog(id)
+          this.ADD_DIALOGUE({
+            id: this.chatRoomActived._id,
+            dialogue: {
+              user: user,
+              text: text
+            }
+          })
+        }, 30)
       })
       this.$socketIO.sendMsg(this.chatRoomActived._id, {
         user: user,

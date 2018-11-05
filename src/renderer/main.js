@@ -4,7 +4,7 @@ import axios from 'axios'
 import App from './App'
 import router from './router'
 import store from './store'
-import SocketIO from './util/socket'
+import SocketIO from './socket'
 
 import Dialogue from '@/components/Dialogue'
 

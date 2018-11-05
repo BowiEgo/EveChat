@@ -77,7 +77,7 @@ function startRenderer () {
       }
     )
 
-    server.listen(9090)
+    server.listen(9000)
   })
 }
 

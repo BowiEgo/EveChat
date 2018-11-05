@@ -9,8 +9,10 @@
         :key="index"
         :actived="item._id === chatRoomActived._id"
         @click.native="chooseInfo(item._id)"
-        :avatar="otherUser.head_img"
-        :data="item.dialog_list[item.dialog_list.length - 1]"></info-card>
+        :avatar="item.other_user_list[0].head_img"
+        :name="item.other_user_list[0].name"
+        :data="item.dialog_list[item.dialog_list.length - 1]">
+      </info-card>
     </transition-group>
   </div>
 </template>
@@ -19,6 +21,7 @@
 import InfoCard from '@/components/InfoCard'
 import Search from '@/components/Search'
 import { mapState, mapGetters } from 'vuex'
+import { deepClone } from '../../util'
 
 export default {
   name: 'InfoBar',
@@ -37,35 +40,29 @@ export default {
   computed: {
     ...mapState(['user', 'chatRoom']),
     ...mapGetters({
+      friendList: 'GET_FRIEND_LIST',
       chatRoomList: 'GET_CHAT_ROOMS',
       chatRoomActived: 'GET_ACTIVED_CHAT_ROOM'
-    }),
-    otherUser () {
-      let result = ''
-      if (this.chatRoomActived) {
-        this.chatRoomActived.user_list.map(item => {
-          console.log('otherUser-item', item)
-          if (item !== this.user._id) {
-            result = item
-          }
-        })
-      }
-      return result
-    }
+    })
   },
   watch: {
     chatRoomList: {
       handler: function (val) {
-        if (this.infoList.length === 0) {
-          this.infoList = val
-        } else {
-          val.map((item, index) => {
-            if (item !== this.infoList[index]) {
-              this.infoList[index] = item
-            }
-          })
-        }
-        console.log('infoList', val)
+        val.map((item, index) => {
+          if (item !== this.infoList[index]) {
+            let info = deepClone(item)
+            let userList = item.user_list
+            let otherUserList = userList.filter(id => {
+              return id !== this.user._id
+            }).map(id => {
+              return this.friendList.find(user => {
+                return user._id === id
+              })
+            })
+            info['other_user_list'] = otherUserList
+            this.$set(this.infoList, index, info)
+          }
+        })
       },
       deep: true
     }

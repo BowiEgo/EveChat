@@ -3,6 +3,19 @@ import DialogueVue from './Dialogue'
 
 const DialogueConstructor = Vue.extend(DialogueVue)
 
+let uid = 0
+
+function getElementsByAttr (elArr, attr, value) {
+  var aEle = []
+  for (var i = 0, len = elArr.length; i < len; i++) {
+    console.log('attr', elArr[i].getAttribute(attr), toString.call(value))
+    if (elArr[i].getAttribute(attr) === String(value)) {
+      aEle.push(elArr[i])
+    }
+  }
+  return aEle
+}
+
 const getAnInstance = () => {
   return new DialogueConstructor({
     el: document.createElement('div')
@@ -17,17 +30,30 @@ const Dialogue = (options = {}) => {
     instance.text = options.text
     instance.type = options.type
     instance.user = options.user
+    instance.$el.setAttribute('uid', ++uid)
     containerEl.appendChild(instance.$el)
     instance.init()
     setTimeout(() => {
-      resolve()
+      resolve(uid)
     }, duration)
     return instance
   })
 }
 
+const Destroy = (uid) => {
+  console.log('uid', uid)
+  let containerEl = document.getElementById('dialogue')
+  console.log('containerEl', containerEl, containerEl.getElementsByClassName('dialogue-bubble'))
+  let elArr = getElementsByAttr(containerEl.getElementsByClassName('dialogue-bubble'), 'uid', uid)
+  console.log('elArr', elArr)
+  elArr.forEach(item => {
+    containerEl.removeChild(item)
+  })
+}
+
 const install = function (Vue, opts = {}) {
   Vue.prototype.$dialog = Dialogue
+  Vue.prototype.$destroyDialog = Destroy
 }
 
 export default {

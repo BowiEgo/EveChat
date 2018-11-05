@@ -1,6 +1,6 @@
 <template>
   <div id="SNbar">
-    <div @click="close">X</div>
+    <div class="close" @click="close">X</div>
     <div class="head-img">
       <img :src="toUser.head_img" />
     </div>
@@ -32,9 +32,10 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['TOGGLE_SN_BAR', 'ADD_CHAT_ROOM', 'FETCH_CHAT_ROOMS', 'FETCH_FRIEND_LIST']),
+    ...mapActions(['TOGGLE_SN_BAR', 'TOGGLE_INFO_BAR', 'ADD_CHAT_ROOM', 'FETCH_CHAT_ROOMS', 'FETCH_FRIEND_LIST']),
     close () {
       this.TOGGLE_SN_BAR(false)
+      this.TOGGLE_INFO_BAR(true)
     },
     sendMsg () {
       // let chat = {
@@ -97,7 +98,7 @@ export default {
   height: 60px;
   border-radius: 50%;
   overflow: hidden;
-  margin: 10px auto;
+  margin: 40px auto 10px;
   img {
     width: 100%;
     height: 100%;
@@ -123,5 +124,16 @@ export default {
   font-weight: 300;
   letter-spacing: 3px;
 }
-
+.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #969696;
+  color: #fff;
+  line-height: 30px;
+  text-align: center;
+}
 </style>
