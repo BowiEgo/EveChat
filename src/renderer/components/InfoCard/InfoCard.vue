@@ -3,10 +3,10 @@
     <div class="container" :class="{ highlight: actived }">
       <div class="brief">
         <div class="head-img">
-          <img :src="data.user.head_img" alt="">
+          <img :src="avatar" alt="">
         </div>
         <div class="mid">
-          <div class="name">{{ data.user.name }}</div>
+          <div class="name">{{ name }}</div>
           <div class="time">07:08AM</div>
         </div>
         <div class="status">Online</div>
@@ -38,7 +38,8 @@ export default {
         }
       }
     },
-    avatar: String
+    avatar: String,
+    name: String
   }
 }
 </script>

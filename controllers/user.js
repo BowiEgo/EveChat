@@ -7,6 +7,15 @@ const ft = require('../models/fields_table')
 
 const userProxy = p.User
 
+exports.list = async (ctx, next) => {
+  let users = await userProxy.all()
+  ctx.body = ctx.util.resuccess({
+    data: users.map(item => {
+      return _.pick(item, ft.user)
+    }),
+  message: '查找成功'})
+}
+
 exports.register = async (ctx, next) => {
   const name = ctx.checkBody('username').notEmpty().len(4, 20).value
   const password = ctx.checkBody('password').notEmpty().len(6, 20).value
@@ -93,4 +102,30 @@ exports.search = async (ctx, next) => {
   }
 
   ctx.body = ctx.util.resuccess({data: _.pick(user, ft.user), message: '查找成功'})
+}
+
+exports.getFriendInfoList = async(ctx, next) => {
+  const userId = ctx.query['userId']
+  let friendList = await userProxy.getFriendInfoList(userId)
+  ctx.body = ctx.util.resuccess({
+    data: friendList.map(user => {
+      return _.pick(user, ft.user)
+    }),
+    message: '查找成功'
+  })
+}
+
+exports.removeFriend = async (ctx, next) => {
+  const userId = ctx.checkBody('userId').notEmpty().value
+  const friendId = ctx.checkBody('friendId').notEmpty().value
+  console.log('removeFriend-controller', userId, friendId)
+  let user = await userProxy.removeFriend(userId, friendId)
+  let targetUser = await userProxy.removeFriend(friendId, userId)
+  // //判断用户是否已存在
+  if (_.isEmpty(user)) {
+    ctx.body = ctx.util.refail({message: [{username: '用户不存在'}]})
+    return
+  }
+
+  ctx.body = ctx.util.resuccess({data: _.pick(user, ft.user), message: '删除好友成功'})
 }

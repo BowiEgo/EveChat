@@ -21,73 +21,127 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
-import { mapState, mapGetters } from 'vuex'
-
+import { mapState, mapGetters, mapActions } from 'vuex'
+// import * as api from '@/api'
+import { merge } from '@/util'
 import DialogueVue from '@/components/Dialogue/Dialogue.vue'
-// import * as io from 'socket.io-client'
 
 export default {
   name: 'Chat',
   data () {
     return {
-      socket: null,
-      text: '',
-      dialogList: []
+      chats: [],
+      text: ''
     }
   },
   components: { DialogueVue },
   computed: {
     ...mapState(['user']),
     ...mapGetters({
-      chatRoom: 'GET_CHAT_ROOM',
-      chatRoomActived: 'GET_ACTIVED_CHAT_ROOM'
-    })
+      chatRooms: 'GET_CHAT_ROOMS',
+      chatRoomActived: 'GET_ACTIVED_CHAT_ROOM',
+      chatRoomActivedId: 'GET_ACTIVED_CHAT_ROOM_ID'
+    }),
+    dialogList () {
+      return this.chatRoomActived.dialog_list
+    }
   },
   watch: {
-    chatRoomActived: {
+    chatRoomActivedId: {
       handler: function (val) {
-        this.dialogList = val.dialog_list
+        console.log('chatRoomActivedId', val, this.chatRoomActived)
+        this.scrollBottom()
       },
       deep: true
     }
   },
-  destroyed () {
-    this.socket.emit('disconnect')
+  async created () {
+    console.log('user', this.user)
+    await this.fetchChats()
+    this.initSocketListener()
   },
   mounted () {
-    console.log(this.user)
-    this.socket = io.connect(`http://localhost:3000/chat?userId=${this.user._id}`)
-    this.socket.on('fetch chatrooms', res => {
-      console.log('res', res)
-      this.initChatRooms(res)
-    })
-    this.socket.on('fetch message', res => {
-      console.log('fetch message', res)
-      this.text = ''
-      res.socketId !== this.socket.id && this.$dialog({user: res.user, text: res.text, type: 'left', duration: 1000})
-      this.scrollBottom()
-    })
-
     setTimeout(() => {
       this.scrollBottom()
     }, 300)
   },
   methods: {
-    initChatRooms (data) {
-      this.$store.dispatch('SET_CHAT_ROOM', data)
+    ...mapActions(['FETCH_CHAT_ROOMS', 'SET_CHAT_ROOMS', 'ADD_DIALOGUE']),
+    fetchChats () {
+      return this.FETCH_CHAT_ROOMS(this.user._id)
+    },
+    initSocketListener () {
+      console.log('initSocketListener')
+      this.$socketIO.on('RECEIVE_MSG', res => {
+        this.text = ''
+        console.log('reveive message res: ', res)
+        console.log('reveive message res: ', res.chatId, this.chatRoomActivedId)
+        const checkUserId = res.user._id !== this.user._id
+        const checkChatId = res.chatId === this.chatRoomActivedId
+        console.log('reveive message res: ', checkUserId, checkChatId)
+        if (checkChatId) {
+          if (checkUserId) {
+            this.$dialog({
+              user: res.user,
+              text: res.text,
+              type: 'left',
+              duration: 1000
+            }).then(id => {
+              setTimeout(() => {
+                this.$destroyDialog(id)
+                this.ADD_DIALOGUE({
+                  id: this.chatRoomActived._id,
+                  dialogue: {
+                    user: res.user,
+                    text: res.text
+                  }
+                })
+              }, 30)
+            })
+            this.scrollBottom()
+          } else {
+            console.log('submit message success', res)
+          }
+        } else {
+          this.ADD_DIALOGUE({
+            id: res.chatId,
+            dialogue: {
+              user: res.user,
+              text: res.text
+            }
+          })
+        }
+      })
     },
     submit (text) {
-      this.$dialog({user: this.user, text: text, type: 'right', duration: 1000})
-      let obj = {
-        user: this.user,
-        text: this.text,
-        socketId: this.socket.id,
-        chatId: this.chatRoomActived._id
-      }
-      console.log('obj', obj)
-      this.socket.emit('submit message', obj)
-
+      console.log('submit', text)
+      let user = merge({
+        head_img: '',
+        name: '',
+        nick_name: '',
+        _id: ''
+      }, this.user)
+      this.$dialog({
+        user: user,
+        text: text,
+        type: 'right',
+        duration: 1000
+      }).then(id => {
+        setTimeout(() => {
+          this.$destroyDialog(id)
+          this.ADD_DIALOGUE({
+            id: this.chatRoomActived._id,
+            dialogue: {
+              user: user,
+              text: text
+            }
+          })
+        }, 30)
+      })
+      this.$socketIO.sendMsg(this.chatRoomActived._id, {
+        user: user,
+        text: text
+      })
       this.scrollBottom()
     },
     scrollBottom () {
@@ -97,6 +151,16 @@ export default {
         let bubbleDOMList = document.querySelectorAll('.bubble')
         dialogueDOM.scrollTop = bubbleDOMList.length * dialogueDOM.offsetHeight + 120
       })
+    },
+    getActivedChatIO () {
+      console.log(this.$socketIO)
+      for (let i = 0, len = this.$socketIO.chatIO.length; i < len; i++) {
+        let io = this.$socketIO.chatIO[i]
+        console.log(i, io._id, this.chatRoomActived._id)
+        if (io._id === this.chatRoomActived._id) {
+          return io
+        }
+      }
     }
   }
 }

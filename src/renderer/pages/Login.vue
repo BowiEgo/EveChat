@@ -32,6 +32,7 @@
 
 <script>
 import * as api from '@/api'
+import { mapActions, mapState } from 'vuex'
 import TextField from '@/components/TextField'
 import LoadingWin from '@/components/LoadingWin'
 
@@ -54,34 +55,58 @@ export default {
     TextField,
     LoadingWin
   },
+  computed: {
+    ...mapState(['user'])
+  },
   methods: {
+    ...mapActions(['SET_USER', 'ADD_FRIEND_REQUEST', 'FETCH_CHAT_ROOMS', 'FETCH_FRIEND_LIST']),
     register () {
-      api.u.register({ username: this.username, password: this.password }).then(res => {
-        console.log(res)
+      api.u.register({
+        username: this.username,
+        password: this.password
+      }).then(res => {
         if (res.data.success) {
-          /* TODO 完成注册 */
+          this.handleLogin(res.data.data)
         } else {
-          /* TODO 提示错误 */
           this.hintError(res.data.message)
         }
       })
     },
     login () {
-      // console.log(this.username)
-      // console.log(this.password)
-      api.u.login({ username: this.username, password: this.password }).then(res => {
-        console.log('res: ', res)
+      api.u.login({
+        username: this.username,
+        password: this.password
+      }).then(res => {
         if (res.data.success) {
-          /* TODO 完成登入 */
-          this.$store.dispatch('SET_USER', res.data.data)
-          this.isBtnLoaing = true
-          setTimeout(() => {
-            this.$router.push('/home')
-          }, 3000)
+          this.handleLogin(res.data.data)
         } else {
-          /* TODO 提示错误 */
           this.hintError(res.data.message)
         }
+      })
+    },
+    handleLogin (user) {
+      this.SET_USER(user)
+      this.isBtnLoaing = true
+      setTimeout(() => {
+        this.connectServer().then(() => {
+          this.FETCH_FRIEND_LIST(this.user._id)
+          this.$router.push({
+            name: 'home'
+          })
+        })
+      }, 1000)
+    },
+    connectServer () {
+      return new Promise((resolve, reject) => {
+        this.$socketIO.connectServer(this.user._id)
+        this.$socketIO.on('JOIN_CHAT_SUCCESS', chatId => {
+          console.log('FETCH_CHAT_ROOMS')
+          this.FETCH_FRIEND_LIST(this.user._id)
+          this.FETCH_CHAT_ROOMS(this.user._id).then(() => {
+            this.$store.dispatch('ACTIVE_CHAT_ROOM', chatId)
+          })
+        })
+        resolve()
       })
     },
     hintError (msg) {

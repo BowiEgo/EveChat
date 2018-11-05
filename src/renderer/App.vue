@@ -5,9 +5,17 @@
 </template>
 
 <script>
-  export default {
-    name: 'test'
+export default {
+  name: 'test',
+  mounted () {
+    this.test()
+  },
+  methods: {
+    test () {
+      console.log('test')
+    }
   }
+}
 </script>
 
 <style>

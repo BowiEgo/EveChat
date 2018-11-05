@@ -48,7 +48,7 @@ export default {
   },
   methods: {
     handleClick (type) {
-      console.log('handleClick')
+      console.log('handleClick', type)
       this.$emit('click', type)
     }
   }

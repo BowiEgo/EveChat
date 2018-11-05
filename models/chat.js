@@ -6,6 +6,7 @@ const Schema = mongoose.Schema
 
 const schema = new Schema({
   user_list: [String],
+  type: String, // 房间类型，'double'双人
   // dialogue_list: [{ user_name: 'test', create_at: Date.now, text: 'test'}],   // {user_name: '', create_at: '', text: ''}
   dialog_list: [{}],
   chatId: String,

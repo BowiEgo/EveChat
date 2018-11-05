@@ -1,32 +1,66 @@
-const state = { list: [] }
+import * as api from '@/api'
+
+const state = {
+  list: []
+}
 
 const mutations = {
-  SET_CHAT_ROOM (state, arr) {
+  SET_CHAT_ROOMS (state, arr) {
     state.list = []
     arr.map((item, index) => {
       item.active = index === 0
       state.list.push(item)
     })
   },
+  ADD_CHAT_ROOM (state, obj) {
+    state.list.unshift(obj)
+  },
   ACTIVE_CHAT_ROOM (state, id) {
     state.list.map(item => {
       item.active = item._id === id
     })
+  },
+  ADD_DIALOGUE (state, obj) {
+    let { id, dialogue } = obj
+    console.log('ADD_DIALOGUE', id, dialogue)
+    let room = state.list.find(item => {
+      console.log(item._id)
+      return item._id === id
+    })
+    console.log('ADD_DIALOGUE', room)
+    room.dialog_list.push(dialogue)
+    console.log('chatroom-state', state)
   }
 }
 
 const actions = {
-  SET_CHAT_ROOM ({ commit }, arr) {
-    commit('SET_CHAT_ROOM', arr)
+  FETCH_CHAT_ROOMS ({ commit }, userId) {
+    return api.c.list({
+      userId: userId
+    }).then(res => {
+      const chatRooms = res.data.data
+      console.log('chatRooms', chatRooms)
+      commit('SET_CHAT_ROOMS', chatRooms)
+    })
+  },
+  SET_CHAT_ROOMS ({ commit }, arr) {
+    commit('SET_CHAT_ROOMS', arr)
+  },
+  ADD_CHAT_ROOM ({ commit }, obj) {
+    commit('ADD_CHAT_ROOM', obj)
   },
   ACTIVE_CHAT_ROOM ({ commit }, id) {
     commit('ACTIVE_CHAT_ROOM', id)
+  },
+  ADD_DIALOGUE ({ commit }, obj) {
+    console.log('action-ADD_DIALOGUE', obj)
+    commit('ADD_DIALOGUE', obj)
   }
 }
 
 const getters = {
-  GET_CHAT_ROOM (state) {
-    return state.list
+  GET_CHAT_ROOMS (state) {
+    return Array.from(state.list)
   },
   // GET_CHAT_INFO (state) {
   //   return state.list.map(item => {
@@ -37,6 +71,16 @@ const getters = {
       let item = state.list[i]
       if (item.active) {
         return item
+      }
+    }
+    return ''
+  },
+  GET_ACTIVED_CHAT_ROOM_ID (state) {
+    for (let i in state.list) {
+      let item = state.list[i]
+      if (item.active) {
+        state.activeId = item._id
+        return item._id
       }
     }
     return ''

@@ -2,6 +2,7 @@
 const _ = require('lodash')
 const m = require('../models')
 const config = require('config')
+const noopPromise = require('../util/a').noopPromise
 
 const ChatModel = m.Chat
 
@@ -13,22 +14,57 @@ const getByUserId = (userId) => {
   return ChatModel.$where(`this.user_list.indexOf("${userId}") !== -1`).exec()
 }
 
-const newAndSave = (userId, dialog) => {
-  const chat = new ChatModel()
+const removeById = (id) => {
+  return ChatModel.remove({ _id: id })
+}
 
-  chat.user_list = [userId, '5a2f901c4d6e97242e65b650']
-  chat.dialog_list = [dialog]
-
-  return chat.save()
+const newAndSave = (userIds) => {
+  return new Promise((resolve, reject) => {
+    findByUserIds(userIds).then(chats=> {
+      if (chats.length > 0) {
+        reject('chat already exist !!')
+      } else {
+        const newChat = new ChatModel()
+        newChat.type = 'double'
+        newChat.user_list = userIds
+        newChat.dialog_list = []
+        newChat.save().then(res => {
+          resolve(res)
+        })
+      }
+    })
+  })
 }
 
 const addDialogue = (chatId, dialogue) => {
-  ChatModel.update({ _id: chatId }, { $push: { dialog_list: dialogue } }, function (err) {
-    console.log(err)
+  ChatModel.update(
+    { _id: chatId },
+    { $push: { dialog_list: dialogue }
+  }, function (err) {
+    if (err) {
+      console.log('error', err)
+    }
   })
+}
+
+const findByUserIds = (userIds) => {
+  return ChatModel.where('user_list').eq(userIds).exec()
+}
+
+const removeByUserIds = async (userIds) => {
+  let chats = await findByUserIds(userIds)
+  findByUserIds(userIds).then(chats => {
+    console.log('chats', chats)
+  })
+  return Promise.all(chats.map(chatId => {
+    return ChatModel.findOneAndRemove({ _id: chatId })
+  }))
 }
 
 exports.getByChatId = getByChatId
 exports.getByUserId = getByUserId
+exports.removeById = removeById
 exports.newAndSave = newAndSave
 exports.addDialogue = addDialogue
+exports.findByUserIds = findByUserIds
+exports.removeByUserIds = removeByUserIds

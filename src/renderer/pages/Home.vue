@@ -4,9 +4,10 @@
       <div class="taskbar-wrap">
         <task-bar @click="toggleMid" :choosed="infoType"></task-bar>
       </div>
-      <div class="infobar-wrap" :class="{unfold: showInfobar}">
+      <div class="infobar-wrap" :class="{ unfold: showInfobar }">
         <info-bar v-show="infoType === 'chat'" :unfolded="showInfobar"></info-bar>
         <contact-bar v-show="infoType === 'contact'" :unfolded="showInfobar"></contact-bar>
+        <setting-bar v-show="infoType === 'setting'" :unfolded="showInfobar"></setting-bar>
       </div>
       <div class="chatroom-wrap">
         <chat></chat>
@@ -21,6 +22,7 @@
 <script>
 import TaskBar from '@/components/TaskBar'
 import InfoBar from '@/components/InfoBar'
+import SettingBar from '@/components/SettingBar'
 import SNBar from '@/components/SNbar'
 import ContactBar from '@/components/ContactBar'
 import Chat from '@/components/Chat'
@@ -28,7 +30,14 @@ import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'home-page',
-  components: { TaskBar, InfoBar, ContactBar, SNBar, Chat },
+  components: {
+    TaskBar,
+    InfoBar,
+    SettingBar,
+    ContactBar,
+    SNBar,
+    Chat
+  },
   data () {
     return {
       infoType: 'chat',
@@ -40,8 +49,6 @@ export default {
       showInfobar: 'GET_INFO_BAR_STATE',
       showSNbar: 'GET_SN_BAR_STATE'
     })
-  },
-  mounted () {
   },
   methods: {
     ...mapActions(['TOGGLE_INFO_BAR']),
@@ -124,9 +131,9 @@ main {
 .SNbar-wrap {
   width: 0;
   height: 100vh;
-  // background: #fbfaf7;
+  background: #fbfaf7;
   // background: #f0f3f5;
-  background-color: grey;
+  // background-color: grey;
   transition: all .3s ease;
   transform-origin: 0 50%;
   transform: scaleX(0);
