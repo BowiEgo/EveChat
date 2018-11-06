@@ -22,7 +22,7 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-// import * as api from '@/api'
+import * as api from '@/api'
 import { merge } from '@/util'
 import DialogueVue from '@/components/Dialogue/Dialogue.vue'
 
@@ -49,7 +49,12 @@ export default {
   watch: {
     chatRoomActivedId: {
       handler: function (val) {
-        console.log('chatRoomActivedId', val, this.chatRoomActived)
+        api.u.clearUnread({
+          userId: this.user._id,
+          chatId: val
+        }).then(res => {
+          this.SET_USER(res.data.data)
+        })
         this.scrollBottom()
       },
       deep: true
@@ -66,19 +71,20 @@ export default {
     }, 300)
   },
   methods: {
-    ...mapActions(['FETCH_CHAT_ROOMS', 'SET_CHAT_ROOMS', 'ADD_DIALOGUE']),
+    ...mapActions([
+      'SET_USER',
+      'FETCH_CHAT_ROOMS',
+      'SET_CHAT_ROOMS',
+      'ADD_DIALOGUE'
+    ]),
     fetchChats () {
       return this.FETCH_CHAT_ROOMS(this.user._id)
     },
     initSocketListener () {
-      console.log('initSocketListener')
       this.$socketIO.on('RECEIVE_MSG', res => {
         this.text = ''
-        console.log('reveive message res: ', res)
-        console.log('reveive message res: ', res.chatId, this.chatRoomActivedId)
         const checkUserId = res.user._id !== this.user._id
         const checkChatId = res.chatId === this.chatRoomActivedId
-        console.log('reveive message res: ', checkUserId, checkChatId)
         if (checkChatId) {
           if (checkUserId) {
             this.$dialog({
@@ -110,11 +116,16 @@ export default {
               text: res.text
             }
           })
+          api.u.addUnread({
+            userId: this.user._id,
+            chatId: res.chatId
+          }).then(res => {
+            this.SET_USER(res.data.data)
+          })
         }
       })
     },
     submit (text) {
-      console.log('submit', text)
       let user = merge({
         head_img: '',
         name: '',
@@ -145,7 +156,6 @@ export default {
       this.scrollBottom()
     },
     scrollBottom () {
-      console.log('scrollBottom')
       this.$nextTick(() => {
         let dialogueDOM = document.getElementById('dialogue')
         let bubbleDOMList = document.querySelectorAll('.bubble')
@@ -153,10 +163,8 @@ export default {
       })
     },
     getActivedChatIO () {
-      console.log(this.$socketIO)
       for (let i = 0, len = this.$socketIO.chatIO.length; i < len; i++) {
         let io = this.$socketIO.chatIO[i]
-        console.log(i, io._id, this.chatRoomActived._id)
         if (io._id === this.chatRoomActived._id) {
           return io
         }

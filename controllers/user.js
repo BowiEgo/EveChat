@@ -129,3 +129,30 @@ exports.removeFriend = async (ctx, next) => {
 
   ctx.body = ctx.util.resuccess({data: _.pick(user, ft.user), message: '删除好友成功'})
 }
+
+exports.addUnread = async (ctx, next) => {
+  const userId = ctx.checkBody('userId').notEmpty().value
+  const chatId = ctx.checkBody('chatId').notEmpty().value
+  console.log('addUnread-controller', userId, chatId)
+
+  let user = await userProxy.addUnread(userId, chatId)
+  ctx.body = ctx.util.resuccess({data: _.pick(user, ft.user), message: '增加未读消息数成功'})
+}
+
+exports.minusUnread = async (ctx, next) => {
+  const userId = ctx.checkBody('userId').notEmpty().value
+  const chatId = ctx.checkBody('chatId').notEmpty().value
+  console.log('minusUnread-controller', userId, chatId)
+
+  let user = await userProxy.minusUnread(userId, chatId)
+  ctx.body = ctx.util.resuccess({data: _.pick(user, ft.user), message: '减少未读消息数成功'})
+}
+
+exports.clearUnread = async (ctx, next) => {
+  const userId = ctx.checkBody('userId').notEmpty().value
+  const chatId = ctx.checkBody('chatId').notEmpty().value
+  console.log('clearUnread-controller', userId, chatId)
+
+  let user = await userProxy.clearUnread(userId, chatId)
+  ctx.body = ctx.util.resuccess({data: _.pick(user, ft.user), message: '清空未读消息数成功'})
+}

@@ -15,5 +15,8 @@ exports.api = router()
   .post('/api/user/search', user.search)
   .get('/api/user/friend', user.getFriendInfoList)
   .post('/api/user/friend/remove', user.removeFriend)
+  .post('/api/user/unread/add', user.addUnread)
+  .post('/api/user/unread/minus', user.minusUnread)
+  .post('/api/user/unread/clear', user.clearUnread)
 
   .get('/api/chat/list', chat.list)

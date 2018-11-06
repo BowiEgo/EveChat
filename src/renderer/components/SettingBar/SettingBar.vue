@@ -16,7 +16,6 @@ export default {
   },
   methods: {
     handleLogout () {
-      console.log('handleLogout')
       this.$socketIO.close().then(res => {
         this.$router.push({
           name: 'login'

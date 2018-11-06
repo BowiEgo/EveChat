@@ -10,6 +10,7 @@
           <div class="time">07:08AM</div>
         </div>
         <div class="status">Online</div>
+        <div class="unread">{{ unreadMsgNum }}条未读</div>
       </div>
       <div class="content">{{ data.text }}</div>
     </div>
@@ -17,8 +18,13 @@
 </template>
 
 <script>
+import Badge from '../Badge'
+
 export default {
   name: 'InfoCard',
+  components: {
+    Badge
+  },
   props: {
     actived: {
       type: Boolean
@@ -39,7 +45,11 @@ export default {
       }
     },
     avatar: String,
-    name: String
+    name: String,
+    unreadMsgNum: {
+      type: Number,
+      default: 0
+    }
   }
 }
 </script>
@@ -53,6 +63,7 @@ export default {
 }
 
 .container {
+  position: relative;
   width: 100%;
   padding: 16px;
   background: #fff;
@@ -62,7 +73,7 @@ export default {
     .name, .status, .content {
       color: #fff;
     }
-    .time {
+    .time, .unread {
       color: rgba(255, 255, 255, 0.7);
     }
   }
@@ -119,5 +130,12 @@ export default {
   font-size: 11px;
   color: #696969;
   font-weight: 300;
+}
+.unread {
+  position: absolute;
+  top: 34px;
+  right: 28px;
+  color: #c5c5c5;
+  font-size: 12px;
 }
 </style>

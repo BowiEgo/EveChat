@@ -22,14 +22,10 @@ const mutations = {
   },
   ADD_DIALOGUE (state, obj) {
     let { id, dialogue } = obj
-    console.log('ADD_DIALOGUE', id, dialogue)
     let room = state.list.find(item => {
-      console.log(item._id)
       return item._id === id
     })
-    console.log('ADD_DIALOGUE', room)
     room.dialog_list.push(dialogue)
-    console.log('chatroom-state', state)
   }
 }
 
@@ -39,7 +35,6 @@ const actions = {
       userId: userId
     }).then(res => {
       const chatRooms = res.data.data
-      console.log('chatRooms', chatRooms)
       commit('SET_CHAT_ROOMS', chatRooms)
     })
   },
@@ -53,7 +48,6 @@ const actions = {
     commit('ACTIVE_CHAT_ROOM', id)
   },
   ADD_DIALOGUE ({ commit }, obj) {
-    console.log('action-ADD_DIALOGUE', obj)
     commit('ADD_DIALOGUE', obj)
   }
 }

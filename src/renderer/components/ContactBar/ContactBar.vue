@@ -51,7 +51,6 @@ export default {
   methods: {
     ...mapActions(['TOGGLE_SN_BAR', 'SET_SN_BAR_USER_INFO', 'TOGGLE_INFO_BAR']),
     handleClickNewFriend () {
-      console.log('handleClickNewFriend')
       this.TOGGLE_SN_BAR(true)
       this.SET_SN_BAR_USER_INFO(this.friendReQuest[0])
     },
@@ -83,6 +82,7 @@ export default {
   align-items: center;
   justify-content: space-around;
   border-radius: 5px;
+  background-color: #fff;
   &.actived, &:hover {
     color: #fff;
     background-color: #5abdea;

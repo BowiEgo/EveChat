@@ -8,7 +8,6 @@ let uid = 0
 function getElementsByAttr (elArr, attr, value) {
   var aEle = []
   for (var i = 0, len = elArr.length; i < len; i++) {
-    console.log('attr', elArr[i].getAttribute(attr), toString.call(value))
     if (elArr[i].getAttribute(attr) === String(value)) {
       aEle.push(elArr[i])
     }
@@ -41,11 +40,8 @@ const Dialogue = (options = {}) => {
 }
 
 const Destroy = (uid) => {
-  console.log('uid', uid)
   let containerEl = document.getElementById('dialogue')
-  console.log('containerEl', containerEl, containerEl.getElementsByClassName('dialogue-bubble'))
   let elArr = getElementsByAttr(containerEl.getElementsByClassName('dialogue-bubble'), 'uid', uid)
-  console.log('elArr', elArr)
   elArr.forEach(item => {
     containerEl.removeChild(item)
   })

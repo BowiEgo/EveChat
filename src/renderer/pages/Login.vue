@@ -99,8 +99,10 @@ export default {
     connectServer () {
       return new Promise((resolve, reject) => {
         this.$socketIO.connectServer(this.user._id)
+        this.$socketIO.on(this.$socketIO.serverIO, 'disconnect', res => {
+          this.$messageBlur()
+        })
         this.$socketIO.on('JOIN_CHAT_SUCCESS', chatId => {
-          console.log('FETCH_CHAT_ROOMS')
           this.FETCH_FRIEND_LIST(this.user._id)
           this.FETCH_CHAT_ROOMS(this.user._id).then(() => {
             this.$store.dispatch('ACTIVE_CHAT_ROOM', chatId)

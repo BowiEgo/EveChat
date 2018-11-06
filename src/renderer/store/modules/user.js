@@ -2,7 +2,8 @@ const state = {
   nick_name: null,
   head_img: null,
   name: null,
-  _id: null
+  _id: null,
+  unread_num_list: null
 }
 
 const mutations = {
@@ -11,6 +12,7 @@ const mutations = {
     state.head_img = obj.head_img
     state.name = obj.name
     state._id = obj._id
+    state.unread_num_list = obj.unread_num_list
   }
 }
 
