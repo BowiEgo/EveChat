@@ -1,15 +1,7 @@
 <template>
   <div id="chat">
     <div id="dialogue" ref="dialogue">
-      <dialogue-vue
-        v-for="(item, index) in dialogList"
-        v-if="!!item"
-        :key="index"
-        :static="true"
-        :type="item.user._id === user._id ? 'right' : 'left'"
-        :text="item.text"
-        :user="item.user">
-      </dialogue-vue>
+      <dialogue-group :data="dialogList" :user="user"></dialogue-group>
     </div>
     <div id="textArea">
       <textarea v-model="text" v-on:keyup.13="submit(text)"/>
@@ -24,7 +16,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 import * as api from '@/api'
 import { merge } from '@/util'
-import DialogueVue from '@/components/Dialogue/Dialogue.vue'
+import DialogueGroup from '@/components/DialogueGroup'
 
 export default {
   name: 'Chat',
@@ -34,7 +26,7 @@ export default {
       text: ''
     }
   },
-  components: { DialogueVue },
+  components: { DialogueGroup },
   computed: {
     ...mapState(['user']),
     ...mapGetters({
@@ -87,10 +79,13 @@ export default {
         const checkChatId = res.chatId === this.chatRoomActivedId
         if (checkChatId) {
           if (checkUserId) {
+            let createTime = Date.now()
             this.$dialog({
               user: res.user,
               text: res.text,
               type: 'left',
+              createTime: createTime,
+              showTimeTip: this.showTimeTip(),
               duration: 1000
             }).then(id => {
               setTimeout(() => {
@@ -99,7 +94,8 @@ export default {
                   id: this.chatRoomActived._id,
                   dialogue: {
                     user: res.user,
-                    text: res.text
+                    text: res.text,
+                    create_at: createTime
                   }
                 })
               }, 30)
@@ -113,7 +109,8 @@ export default {
             id: res.chatId,
             dialogue: {
               user: res.user,
-              text: res.text
+              text: res.text,
+              create_at: Date.now()
             }
           })
           api.u.addUnread({
@@ -132,10 +129,14 @@ export default {
         nick_name: '',
         _id: ''
       }, this.user)
+      let createTime = Date.now()
+
       this.$dialog({
         user: user,
         text: text,
         type: 'right',
+        createTime: createTime,
+        showTimeTip: this.showTimeTip(),
         duration: 1000
       }).then(id => {
         setTimeout(() => {
@@ -144,7 +145,8 @@ export default {
             id: this.chatRoomActived._id,
             dialogue: {
               user: user,
-              text: text
+              text: text,
+              create_at: createTime
             }
           })
         }, 30)
@@ -169,6 +171,13 @@ export default {
           return io
         }
       }
+    },
+    showTimeTip () {
+      let lastTime = this.dialogList[this.dialogList.length - 1]
+        ? this.dialogList[this.dialogList.length - 1].create_at
+        : Date.now()
+      console.log('showTimeTip', lastTime, (Date.now() - lastTime) >= 60 * 1000)
+      return (Date.now() - lastTime) >= 60 * 1000
     }
   }
 }

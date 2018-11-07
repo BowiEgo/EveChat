@@ -15,10 +15,15 @@ const event_list = {
   JOIN_CHAT_SUCCESS: 'JOIN_CHAT_SUCCESS',
   RECEIVE_MSG: 'RECEIVE_MSG',
   RECEIVE_CHAT_REQUEST: 'RECEIVE_CHAT_REQUEST',
+  MEMBER_CONNECT: 'MEMBER_CONNECT',
+  MEMBER_DISCONNECT: 'MEMBER_DISCONNECT',
   ERROR: 'ERROR'
 }
 
 function EMIT_EVENT (socket, eventName, params) {
+  if (!event_list[eventName]) {
+    console.log(`unavailable eventname ${eventName}!`)
+  }
   socket.emit(event_list[eventName], params)
 }
 
@@ -29,19 +34,21 @@ function initServerIO (io) {
     User.saveSocketId(userId, client.id)
     EMIT_EVENT(client, 'SERVER_CONNECTED')
     // 客户端加入聊天室
+    User.setIsConnected(userId, true)
     User.getById(userId).then(user => {
       user.chat_ids.forEach(chatId => {
         client.join(chatId)
-        EMIT_EVENT(
-          serverIO.to(chatId),
-          'RECEIVE_MSG', {
-            chatId: chatId,
-            text: `client ${userId} joined chat ${chatId}`,
-            user: {
-              _id: userId
-            }
-          }
-        )
+        EMIT_EVENT(serverIO.to(chatId), 'MEMBER_CONNECT', userId)
+        // EMIT_EVENT(
+        //   serverIO.to(chatId),
+        //   'RECEIVE_MSG', {
+        //     chatId: chatId,
+        //     text: `client ${userId} joined chat ${chatId}`,
+        //     user: {
+        //       _id: userId
+        //     }
+        //   }
+        // )
       })
     })
 
@@ -123,6 +130,12 @@ function initServerIO (io) {
     // 监听用户断开连接
     client.on('disconnect', () => {
       disconnect(client, userId)
+      User.setIsConnected(userId, false)
+      User.getById(userId).then(user => {
+        user.chat_ids.forEach(chatId => {
+          EMIT_EVENT(serverIO.to(chatId), 'MEMBER_DISCONNECT', userId)
+        })
+      })
     })
   })
 }

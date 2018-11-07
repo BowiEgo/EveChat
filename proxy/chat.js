@@ -37,6 +37,7 @@ const newAndSave = (userIds) => {
 }
 
 const addDialogue = (chatId, dialogue) => {
+  dialogue.create_at = Date.now()
   ChatModel.update(
     { _id: chatId },
     { $push: { dialog_list: dialogue }

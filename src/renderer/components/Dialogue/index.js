@@ -24,11 +24,13 @@ const getAnInstance = () => {
 const Dialogue = (options = {}) => {
   return new Promise((resolve, reject) => {
     const containerEl = document.getElementById('dialogue')
-    let duration = options.duration || 0
     let instance = getAnInstance()
+    let duration = options.duration || 0
     instance.text = options.text
     instance.type = options.type
     instance.user = options.user
+    instance.createTime = options.createTime
+    instance.showTimeTip = options.showTimeTip
     instance.$el.setAttribute('uid', ++uid)
     containerEl.appendChild(instance.$el)
     instance.init()

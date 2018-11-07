@@ -1,6 +1,7 @@
 <template>
   <div id="infoBar">
     <search></search>
+    <span class="warning" v-if="!isConnected">您已断开连接</span>
     <transition-group name="fadeIn">
       <info-card
         v-for="(item, index) in infoList"
@@ -12,6 +13,8 @@
         @click.native="chooseInfo(item._id)"
         :avatar="item.other_user_list[0].head_img"
         :name="item.other_user_list[0].name"
+        :last-time="getLastTime(item)"
+        :is-connected="item.other_user_list[0].is_connected"
         :data="item.dialog_list[item.dialog_list.length - 1]">
       </info-card>
     </transition-group>
@@ -41,6 +44,7 @@ export default {
   computed: {
     ...mapState(['user', 'chatRoom']),
     ...mapGetters({
+      isConnected: 'GET_IS_CONNECTED',
       friendList: 'GET_FRIEND_LIST',
       chatRoomList: 'GET_CHAT_ROOMS',
       chatRoomActived: 'GET_ACTIVED_CHAT_ROOM'
@@ -61,7 +65,7 @@ export default {
               })
             })
             info['other_user_list'] = otherUserList
-            console.log(this.infoList)
+            console.log('infoList', this.infoList)
             this.$set(this.infoList, index, info)
           }
         })
@@ -77,8 +81,13 @@ export default {
       this.$store.dispatch('ACTIVE_CHAT_ROOM', id)
     },
     getUnreadMsgNum (id) {
-      console.log('getUnreadMsgNum', id, this.user.unread_num_list, this.user.unread_num_list[id])
-      return this.user.unread_num_list[id]
+      console.log('getUnreadMsgNum', id, this.user.unread_num_list)
+      return this.user.unread_num_list ? this.user.unread_num_list[id] : 0
+    },
+    getLastTime (info) {
+      return info.dialog_list[info.dialog_list.length - 1]
+        ? info.dialog_list[info.dialog_list.length - 1].create_at
+        : Date.now()
     }
   }
 }
@@ -110,5 +119,12 @@ export default {
   padding: 16px;
   overflow-y: scroll;
   height: 100vh;
+}
+.warning {
+  width: 100%;
+  display: inline-block;
+  text-align: center;
+  color: #909090;
+  line-height: 30px;
 }
 </style>

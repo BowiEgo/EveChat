@@ -1,22 +1,27 @@
 <template>
-  <div class="dialogue-bubble container" :class="typeClass">
-    <transition name="fade">
-  		<div class="avatar" v-if="isShow">
-        <img v-if="user.head_img" :src="user.head_img">
-      </div>
-    </transition>
-    <transition name="fade">
-      <div class="nickName">{{ user.name }}</div>
-    </transition>
-    <transition v-bind:name="transitionName">
-      <div class="bubble" v-if="isShow">
-        <span>{{ text }}</span>
-      </div>
-    </transition>
-  </div> 
+  <div class="dialogue-bubble">
+    <div class="time" v-if="showTimeTip && isTimeLegal">{{ createTime | timeFilter }}</div>
+    <div class="container" :class="typeClass">
+      <transition name="fade">
+        <div class="avatar" v-if="isShow">
+          <img v-if="user.head_img" :src="user.head_img">
+        </div>
+      </transition>
+      <transition name="fade">
+        <div class="nickName">{{ user.name }}</div>
+      </transition>
+      <transition v-bind:name="transitionName">
+        <div class="bubble" v-if="isShow">
+          <span>{{ text }}</span>
+        </div>
+      </transition>
+    </div> 
+  </div>
 </template>
 
 <script>
+import { timeSimplify } from '../../util/time'
+
 export default {
   name: 'DialogueVue',
   data () {
@@ -43,6 +48,11 @@ export default {
           name: ''
         }
       }
+    },
+    createTime: '',
+    showTimeTip: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -54,6 +64,14 @@ export default {
     },
     transitionName () {
       return this.type === 'left' ? 'bubble-left' : 'bubble-right'
+    },
+    isTimeLegal () {
+      return timeSimplify(this.createTime) !== '--:--'
+    }
+  },
+  filters: {
+    timeFilter (val) {
+      return timeSimplify(val)
     }
   },
   methods: {
@@ -115,6 +133,12 @@ export default {
     opacity: 1;
     transform: scale(1, 1);
   }
+}
+
+.time {
+  font-size: 12px;
+  color: #bfbfbf;
+  text-align: center;
 }
 
 .container {
