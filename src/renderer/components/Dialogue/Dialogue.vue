@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
   <div class="dialogue-bubble">
     <div class="time" v-if="showTimeTip && isTimeLegal">{{ createTime | timeFilter }}</div>
     <div class="container" :class="typeClass">
@@ -8,9 +7,9 @@
           <img v-if="user.head_img" :src="user.head_img">
         </div>
       </transition>
-      <transition name="fade">
-        <div class="nickName">{{ user.name }}</div>
-      </transition>
+      <!-- <transition name="fade">
+        <div class="nickname">{{ user.name }}</div>
+      </transition> -->
       <transition v-bind:name="transitionName">
         <div class="bubble" v-if="isShow">
           <span>{{ text }}</span>
@@ -18,23 +17,6 @@
       </transition>
     </div> 
   </div>
-=======
-  <div class="dialogue-bubble container" :class="typeClass">
-    <transition name="fade">
-  		<div class="avatar" v-if="isShow">
-        <img v-if="user.head_img" :src="user.head_img">
-      </div>
-    </transition>
-    <transition name="fade">
-      <div class="nickname">{{ user.name }}</div>
-    </transition>
-    <transition v-bind:name="transitionName">
-      <div class="bubble" v-if="isShow">
-        <span>{{ text }}</span>
-      </div>
-    </transition>
-  </div> 
->>>>>>> 9a7416457b92901adbd12204acb000c55ab3f117
 </template>
 
 <script>
@@ -157,11 +139,12 @@ export default {
   font-size: 12px;
   color: #bfbfbf;
   text-align: center;
+  margin: 20px 0 0;
 }
 
 .container {
   position: relative;
-  margin: 4px 0;
+  margin: 0 0 8px;
   display: flex;
   width: 100%;
 }
@@ -182,7 +165,7 @@ export default {
 
 .nickname {
   position: absolute;
-  top: 0;
+  top: -3px;
   font-size: 12px;
   color: #b1b1b1;
 }
