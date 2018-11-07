@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div class="dialogue-bubble">
     <div class="time" v-if="showTimeTip && isTimeLegal">{{ createTime | timeFilter }}</div>
     <div class="container" :class="typeClass">
@@ -17,6 +18,23 @@
       </transition>
     </div> 
   </div>
+=======
+  <div class="dialogue-bubble container" :class="typeClass">
+    <transition name="fade">
+  		<div class="avatar" v-if="isShow">
+        <img v-if="user.head_img" :src="user.head_img">
+      </div>
+    </transition>
+    <transition name="fade">
+      <div class="nickname">{{ user.name }}</div>
+    </transition>
+    <transition v-bind:name="transitionName">
+      <div class="bubble" v-if="isShow">
+        <span>{{ text }}</span>
+      </div>
+    </transition>
+  </div> 
+>>>>>>> 9a7416457b92901adbd12204acb000c55ab3f117
 </template>
 
 <script>
@@ -162,7 +180,7 @@ export default {
   height: 100%;
 }
 
-.nickName {
+.nickname {
   position: absolute;
   top: 0;
   font-size: 12px;
@@ -197,11 +215,11 @@ export default {
   flex-direction: row-reverse;
 }
 
-.container.left .nickName {
+.container.left .nickname {
   left: 50px;
 }
 
-.container.right .nickName {
+.container.right .nickname {
   right: 50px;
 }
 
