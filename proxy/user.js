@@ -128,12 +128,14 @@ exports.minusUnread = async (userId, chatId) => {
   let num = user.unread_num_list[chatId]
   
   if (num === null || num === undefined) {
-    let tmp = {}
     tmp[chatId] = 0
-    Object.assign(user.unread_num_list, tmp)
   } else {
-    --num
+    tmp[chatId] = num - 1
   }
+  await UserModel.update(
+    { _id: userId },
+    { $set: { 'unread_num_list': tmp  } }
+  )
   return user.save()  
 }
 
@@ -149,4 +151,11 @@ exports.clearUnread = async (userId, chatId) => {
     { $set: { 'unread_num_list': tmp  } }
   )
   return user.save()  
+}
+
+exports.setIsConnected = async (userId, isConnected) => {
+  console.log('setIsConnected', userId, isConnected)
+  let user = await UserModel.findById(userId)
+  user.is_connected = isConnected
+  return user.save()
 }

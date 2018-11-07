@@ -100,6 +100,7 @@ export default {
 main {
   display: flex;
   height: 100%;
+  background-color: #f0f3f5;
 }
 
 .taskbar-wrap {
@@ -109,8 +110,8 @@ main {
 .infobar-wrap {
   width: 0;
   // width: 300px;
-  background: #fbfaf7;
-  background: #f0f3f5;
+  background-color: #fbfaf7;
+  background-color: #f0f3f5;
   transition: all .3s ease;
   transform-origin: 0 50%;
   transform: scaleX(0);
@@ -125,15 +126,15 @@ main {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f0f3f5;
+  background-color: #f0f3f5;
   height: 100vh;
 }
 
 .SNbar-wrap {
   width: 0;
   height: 100vh;
-  background: #fbfaf7;
-  // background: #f0f3f5;
+  background-color: #fbfaf7;
+  // background-color: #f0f3f5;
   // background-color: grey;
   transition: all .3s ease;
   transform-origin: 100% 50%;

@@ -59,7 +59,14 @@ export default {
     ...mapState(['user'])
   },
   methods: {
-    ...mapActions(['SET_USER', 'ADD_FRIEND_REQUEST', 'FETCH_CHAT_ROOMS', 'FETCH_FRIEND_LIST']),
+    ...mapActions([
+      'SET_USER',
+      'ADD_FRIEND_REQUEST',
+      'FETCH_CHAT_ROOMS',
+      'FETCH_FRIEND_LIST',
+      'TOGGLE_IS_CONNECTED',
+      'SET_FRIEND_IS_CONNECTED'
+    ]),
     register () {
       api.u.register({
         username: this.username,
@@ -99,13 +106,32 @@ export default {
     connectServer () {
       return new Promise((resolve, reject) => {
         this.$socketIO.connectServer(this.user._id)
+        this.$socketIO.on(this.$socketIO.serverIO, 'connect', res => {
+          this.TOGGLE_IS_CONNECTED(true)
+        })
         this.$socketIO.on(this.$socketIO.serverIO, 'disconnect', res => {
-          this.$messageBlur()
+          // console.log('route', this.$route)
+          // this.$messageBlur()
+          this.TOGGLE_IS_CONNECTED(false)
         })
         this.$socketIO.on('JOIN_CHAT_SUCCESS', chatId => {
           this.FETCH_FRIEND_LIST(this.user._id)
           this.FETCH_CHAT_ROOMS(this.user._id).then(() => {
             this.$store.dispatch('ACTIVE_CHAT_ROOM', chatId)
+          })
+        })
+        this.$socketIO.on('MEMBER_CONNECT', fdId => {
+          console.log('MEMBER_CONNECT', fdId)
+          this.SET_FRIEND_IS_CONNECTED({
+            fdId: fdId,
+            val: true
+          })
+        })
+        this.$socketIO.on('MEMBER_DISCONNECT', fdId => {
+          console.log('MEMBER_DISCONNECT', fdId)
+          this.SET_FRIEND_IS_CONNECTED({
+            fdId: fdId,
+            val: false
           })
         })
         resolve()

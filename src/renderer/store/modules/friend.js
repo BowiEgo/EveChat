@@ -5,6 +5,21 @@ const state = { fdList: [] }
 const mutations = {
   SET_FRIEND_LIST (state, fdList) {
     state.fdList = fdList
+  },
+  SET_FRIEND_IS_CONNECTED (state, req) {
+    const { fdId, val } = req
+    let fd = state.fdList.find(fd => {
+      return fd._id === fdId
+    })
+    if (typeof val === 'boolean') {
+      if (fd) {
+        fd.is_connected = val
+      } else {
+        console.error(`no friend with id: ${fdId}`)
+      }
+    } else {
+      console.error('SET_FRIEND_IS_CONNECTED: error', 'val type is not boolean')
+    }
   }
 }
 
@@ -14,9 +29,12 @@ const actions = {
       userId: userId
     }).then(res => {
       const fdList = res.data.data
-      console.log('fdList', res)
+      console.log('fdList', fdList)
       commit('SET_FRIEND_LIST', fdList)
     })
+  },
+  SET_FRIEND_IS_CONNECTED ({ commit }, req) {
+    commit('SET_FRIEND_IS_CONNECTED', req)
   }
 }
 

@@ -25,7 +25,9 @@ const mutations = {
     let room = state.list.find(item => {
       return item._id === id
     })
-    room.dialog_list.push(dialogue)
+    if (room) {
+      room.dialog_list.push(dialogue)
+    }
   }
 }
 

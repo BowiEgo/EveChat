@@ -63,6 +63,7 @@
     "change-case": "^3.0.1",
     "constant-case": "^2.0.0",
     "core-js": "^2.5.3",
+    "dayjs": "^1.7.7",
     "dot-case": "^2.1.1",
     "header-case": "^1.0.1",
     "koa": "^2.4.1",
