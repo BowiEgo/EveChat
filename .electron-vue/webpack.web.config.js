@@ -58,6 +58,30 @@ let webConfig = {
           }
         }
       },
+      // {
+      //   test: /\.vue$/,
+      //   use: {
+      //     loader: 'vue-loader',
+      //     options: {
+      //       extractCSS: true,
+      //       loaders: {
+      //         scss: [
+      //           'vue-style-loader',
+      //           'css-loader',
+      //           'sass-loader',
+      //           {
+      //             loader: 'sass-resources-loader',
+      //             options: {
+      //               resources: [
+      //                 path.resolve(__dirname, '../src/renderer/assets/styles/color.scss')
+      //               ]
+      //             }
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         use: {

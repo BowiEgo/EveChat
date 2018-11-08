@@ -62,7 +62,7 @@ export default {
 <style lang="scss" scoped>
 #taskBar {
   width: 80px;
-  background-color: #fff;
+  background-color: $themeColor;
   height: 100vh;
   padding-top: 40px;
 }
@@ -99,18 +99,18 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 3px solid #fff;
+  // border-left: 3px solid #fff;
   transition: all ease 0.3s;
   &.active {
     border-left-color: #e91e63;
-    background-color: #fff;
+    background-color: #d6daec;
     .task-icon {
       transition: all ease 0.3s;
-      color: #e91e63;
+      color: $themeDarkColor;
     }
   }
   .task-icon {
-    color: #cecece;
+    color: #fff;
   }
 }
 </style>

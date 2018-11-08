@@ -23,6 +23,13 @@ npm run lint
 
 ```
 
+#### Preview
+
+![预览1](http://wx1.sinaimg.cn/mw690/0060lm7Tly1fx0wmtdejjj31kw0zeary.jpg)
+![预览2](http://wx4.sinaimg.cn/mw690/0060lm7Tly1fx0wmtop1gj31kw0z6wxk.jpg)
+
+#### TODO
+
 ---
 
 This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[1c165f7](https://github.com/SimulatedGREG/electron-vue/tree/1c165f7c5e56edaf48be0fbb70838a1af26bb015) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).

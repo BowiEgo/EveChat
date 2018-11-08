@@ -18,11 +18,20 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+::-webkit-scrollbar{
+  width: 2px;
+  /* display: none; */
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: rgba(201, 201, 201, 0.3);
 }
 
 body {

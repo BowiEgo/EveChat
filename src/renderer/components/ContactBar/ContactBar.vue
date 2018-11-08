@@ -77,7 +77,7 @@ export default {
   width: 100%;
   height: 60px;
   padding-left: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -85,7 +85,7 @@ export default {
   background-color: #fff;
   &.actived, &:hover {
     color: #fff;
-    background-color: #5abdea;
+    background-color: #8f9ad6;
   }
   .head-img {
     width: 40px;

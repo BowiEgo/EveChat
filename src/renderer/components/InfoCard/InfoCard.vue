@@ -18,7 +18,9 @@
         </div>
         <div class="right">
           <div class="time">{{ lastTime | timeFilter }}</div>
-          <div class="unread">{{ unreadMsgNum }}条未读</div>
+          <div class="unread">
+            <badge :info="unreadMsgNum"></badge>
+          </div>
         </div>
       </div>
     </div>
@@ -77,7 +79,7 @@ export default {
 #infoCard {
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   box-shadow: 3px 3px 9px 1px rgba(234, 234, 234, 0.4);
 }
 
@@ -88,7 +90,7 @@ export default {
   background: #fff;
   transition: all ease 0.2s;
   &.highlight {
-    background: #5abdea;
+    background: #8f9ad6;
     .name, .status, .content {
       color: #fff;
     }
@@ -153,24 +155,25 @@ export default {
 .status {
   width: 20%;
   position: absolute;
-  right: -1px;
+  bottom: 0;
+  right: 0px;
   font-size: 12px;
   color: #a7a7a7;
   &:before {
     content: '';
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     background: #5bdf87;
     border-radius: 50%;
-    border: 2px solid #fff;
+    border: 1px solid #fff;
     vertical-align: middle;
     margin-right: 4px;
   }
   &.offline {
     &:before {
-      display: none;
-      background: #bfbfbf;
+      // display: none;
+      background: rgb(255, 0, 98);
     }
   }
 }
@@ -186,7 +189,7 @@ export default {
 }
 .unread {
   margin-top: 4px;
-  color: #c5c5c5;
-  font-size: 12px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

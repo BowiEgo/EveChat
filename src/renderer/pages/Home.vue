@@ -51,15 +51,20 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['TOGGLE_INFO_BAR']),
+    ...mapActions([
+      'TOGGLE_INFO_BAR',
+      'TOGGLE_SN_BAR'
+    ]),
     toggleMid (type) {
       if (type === this.infoType) {
         this.TOGGLE_INFO_BAR(!this.showInfobar)
+        this.TOGGLE_SN_BAR(!this.showInfobar)
         return
       }
       this.infoType = type
       this.$nextTick(() => {
         this.TOGGLE_INFO_BAR(true)
+        this.TOGGLE_SN_BAR(false)
       })
     },
     toggleSNbar () {
@@ -72,7 +77,7 @@ export default {
 <style lang="scss" scoped>
 /* transition */
 // .unfold-enter-active, .unfold-leave-active {
-//   transition: all .3s ease;
+//   transition: all .2s ease;
 //   // transform-origin: top center;
 //   transform-origin: 0 50%;
 //   transform: scaleX(1);
@@ -100,7 +105,8 @@ export default {
 main {
   display: flex;
   height: 100%;
-  background-color: #f0f3f5;
+  background-color: $basicGroundColor;
+  overflow: hidden;
 }
 
 .taskbar-wrap {
@@ -110,9 +116,8 @@ main {
 .infobar-wrap {
   width: 0;
   // width: 300px;
-  background-color: #fbfaf7;
   background-color: #f0f3f5;
-  transition: all .3s ease;
+  transition: all .2s ease;
   transform-origin: 0 50%;
   transform: scaleX(0);
   &.unfold {
@@ -126,17 +131,15 @@ main {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f0f3f5;
   height: 100vh;
 }
 
 .SNbar-wrap {
   width: 0;
   height: 100vh;
-  background-color: #fbfaf7;
   // background-color: #f0f3f5;
-  // background-color: grey;
-  transition: all .3s ease;
+  border-left: 1px solid $dividerColor;
+  transition: all .2s ease;
   transform-origin: 100% 50%;
   transform: scaleX(0);
   &.unfold {

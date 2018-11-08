@@ -28,9 +28,14 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['TOGGLE_SN_BAR', 'SET_SN_BAR_USER_INFO']),
+    ...mapActions([
+      'TOGGLE_SN_BAR',
+      'TOGGLE_INFO_BAR',
+      'SET_SN_BAR_USER_INFO'
+    ]),
     submit () {
       this.TOGGLE_SN_BAR(true)
+      this.TOGGLE_INFO_BAR(false)
       api.u.search({username: this.searchValue}).then(res => {
         console.log(res)
         this.SET_SN_BAR_USER_INFO(res.data.data)

@@ -116,7 +116,7 @@ export default {
 
 /* style */
 #infoBar {
-  padding: 16px;
+  padding: 9px;
   overflow-y: scroll;
   height: 100vh;
 }
