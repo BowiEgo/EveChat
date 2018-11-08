@@ -4,10 +4,24 @@
       <dialogue-group :data="dialogList" :user="user"></dialogue-group>
     </div>
     <div id="textArea">
-      <textarea v-model="text" v-on:keyup.13="submit(text)"/>
-      <!-- <div class="emoji"> -->
-        <!-- <div class="icon"></div> -->
-      <!-- </div> -->
+      <div class="plus-btn">
+        <icon class="plus-icon" name="plus" scale="2"></icon>
+        <div class="tool-group">
+          <div class="capture-btn btn-item">
+            <icon class="capture-icon icon-item" name="scissors" scale="2"></icon>
+          </div>
+          <div class="pic-btn btn-item">
+            <icon class="pic-icon icon-item" name="picture" scale="2.6"></icon>
+          </div>
+          <div class="emoji-btn btn-item">
+            <icon class="emoji-icon icon-item" name="emoji" scale="3"></icon>
+          </div>
+        </div>
+      </div>
+      <textarea v-model="text" placeholder="" v-on:keyup.13="submit(text)"/>
+      <div class="send-btn">
+        <icon class="send-icon" name="paper_plane" scale="2"></icon>
+      </div>
     </div>
   </div>
 </template>
@@ -176,41 +190,42 @@ export default {
       let lastTime = this.dialogList[this.dialogList.length - 1]
         ? this.dialogList[this.dialogList.length - 1].create_at
         : Date.now()
-      console.log('showTimeTip', lastTime, (Date.now() - lastTime) >= 60 * 1000)
       return (Date.now() - lastTime) >= 60 * 1000
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 #chat {
   width: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
   height: 100%;
-  /* background-color: #fbfaf7; */
+  border-left: 1px solid $dividerColor;
+  // border-right: 1px solid #dee8f1;
 }
 
 #dialogue {
-  width: 90%;
-  margin: 30px auto;
+  width: 100%;
+  // margin: 30px auto;
+  // overflow-y: scroll;
+  // height: 80vh;
+  // padding: 10px;
   overflow-y: scroll;
-  /* min-width: 70vw; */
-  height: 100vh;
-  /* background-color: #fff; */
-  /* background-color: #d8e0ea; */
-  padding: 10px;
+  height: 80vh;
+  padding: 0 30px;
 }
 
 #textArea {
-  width: 90%;
-  margin: 0 auto 20px;
-  height: 60px;
+  position: relative;
+  width: 100%;
+  height: 20vh;
   bottom: 0;
   display: flex;
-  background-color: #fff;
+  background-color: inherit;
+  border-top: 1px solid $dividerColor;
   box-shadow: 3px 3px 9px 1px rgba(234, 234, 234, 0.4);
 }
 
@@ -221,30 +236,75 @@ export default {
 
 textarea {
   width: 100%;
-  height: 100%;
-  padding: 20px;
+  // height: 100%;
+  padding: 0 60px;
+  margin: 20px 0;
+  overflow-y: scroll;
   border: none;
   outline: none;
   resize: none;
   font-size: 14px;
+  line-height: 16px;
   color: #929292;
+  background-color: inherit;
   /* box-shadow: -3px 3px 4px rgba(234, 234, 234, 0.4); */
 }
 
-.emoji {
-  width: 80px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* box-shadow: -3px 3px 4px rgba(234, 234, 234, 0.4); */
+.tool-group {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  .btn-item {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin-top: 6px;
+    /* background-color: #2196f3; */
+    border-radius: 50%;
+  }
+  .icon-item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: #fff;
+    transform: translate(-50%, -50%);
+  }
 }
-/* 
-.emoji .icon{
+.emoji-btn {
+  background-color: #ef6493;
+  box-shadow: 0px 3px 6px 0px rgba(255, 78, 166, 0.4);
+}
+.pic-btn {
+  background-color: $greenColor;
+  box-shadow: 0px 3px 6px 0px rgba(153, 209, 89, 0.8);
+}
+.capture-btn {
+  background-color: #7b60e2;
+  box-shadow: 0px 3px 6px 0px rgba(139, 70, 179, 0.4);
+}
+
+.plus-btn {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
   width: 40px;
   height: 40px;
-  background: url('../../assets/images/emoji.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-} */
+}
+.send-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.send-icon, .plus-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #7b60e2;
+}
 </style>

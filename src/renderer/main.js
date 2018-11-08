@@ -9,6 +9,8 @@ import SocketIO from './socket'
 import Dialogue from '@/components/Dialogue'
 import MessageBlur from '@/components/MessageBlur'
 
+// import './assets/styles/color.scss'
+
 import Icon from 'vue-svg-icon/Icon.vue'
 Vue.component('icon', Icon)
 

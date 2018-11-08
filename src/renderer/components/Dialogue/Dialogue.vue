@@ -82,7 +82,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 .fade-enter-active, .fade-leave-active {
   transition: all .3s;
@@ -173,7 +173,7 @@ export default {
 .bubble {
   max-width: 50%;
   position: relative;
-  color: #333;
+  color: #fff;
   font-size: 12px;
   padding: 6px 8px;
   margin-top: 14px;
@@ -208,8 +208,8 @@ export default {
 
 .container.left .bubble {
   margin-left: 10px;
-  background: #fff;
-  /* background: #9e9e9e; */
+  background-color: #c3c3c3;
+  /* background-color: #9e9e9e; */
   border-top-right-radius: 15px;
   box-shadow: 0px 3px 10px 4px rgba(234, 234, 234, 0.7);
 }
@@ -217,10 +217,10 @@ export default {
 .container.right .bubble {
   margin-right: 10px;
   color: #fff;
-  /* background: #fff; */
-  background: #81ccef;
+  /* background-color: #fff; */
+  background-color: $themeColor;
   border-top-left-radius: 15px;
-  box-shadow: 0px 3px 10px 4px rgba(129, 204, 239, 0.3);
+  box-shadow: 0px 3px 10px 4px rgba(93, 117, 255, 0.3);
 }
 
 /* .container.left .bubble:before {
