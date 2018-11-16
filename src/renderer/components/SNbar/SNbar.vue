@@ -65,6 +65,8 @@
           </div>
         </div>
       </div>
+      <SN-card></SN-card>
+      <SN-card></SN-card>
     </drawer-card>
   </div>
 </template>
@@ -74,12 +76,14 @@ import * as api from '@/api'
 import { mapState, mapGetters, mapActions } from 'vuex'
 import USwitch from '../Switch'
 import DrawerCard from './DrawerCard'
+import SNCard from '../SNCard'
 
 export default {
   name: 'SNbar',
   components: {
     USwitch,
-    DrawerCard
+    DrawerCard,
+    SNCard
   },
   data () {
     return {
@@ -276,7 +280,7 @@ export default {
   color: #fff;
 }
 .album-top, .album-list {
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
 }
 .album-top {

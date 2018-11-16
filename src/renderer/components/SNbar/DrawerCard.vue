@@ -55,6 +55,7 @@ export default {
   background-color: $basicGroundColor;
   height: 36vh;
   border-top: solid 5px $dividerColor;
+  overflow-y: scroll;
   transition: all .3s ease;
   transform-origin: 50% 100%;
   transform: scaleY(1);

@@ -4,19 +4,9 @@
       <dialogue-group :data="dialogList" :user="user"></dialogue-group>
     </div>
     <div id="textArea">
-      <div class="plus-btn">
-        <icon class="plus-icon" name="plus" scale="2"></icon>
-        <div class="tool-group">
-          <div class="capture-btn btn-item">
-            <icon class="capture-icon icon-item" name="scissors" scale="2"></icon>
-          </div>
-          <div class="pic-btn btn-item">
-            <icon class="pic-icon icon-item" name="picture" scale="2.6"></icon>
-          </div>
-          <div class="emoji-btn btn-item">
-            <icon class="emoji-icon icon-item" name="emoji" scale="3"></icon>
-          </div>
-        </div>
+      <div class="tool">
+        <float-btns
+          @imgChoosed="handleImgChoosed"></float-btns>
       </div>
       <textarea v-model="text" placeholder="" v-on:keyup.13="submit(text)"/>
       <div class="send-btn">
@@ -31,6 +21,8 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import * as api from '@/api'
 import { merge } from '@/util'
 import DialogueGroup from '@/components/DialogueGroup'
+import FloatBtns from './FloatBtns'
+import Upload from '../Upload'
 
 export default {
   name: 'Chat',
@@ -40,7 +32,11 @@ export default {
       text: ''
     }
   },
-  components: { DialogueGroup },
+  components: {
+    DialogueGroup,
+    FloatBtns,
+    Upload
+  },
   computed: {
     ...mapState(['user']),
     ...mapGetters({
@@ -191,6 +187,24 @@ export default {
         ? this.dialogList[this.dialogList.length - 1].create_at
         : Date.now()
       return (Date.now() - lastTime) >= 60 * 1000
+    },
+    handleImgChoosed (filePaths) {
+      console.log(filePaths[0])
+      let user = merge({
+        head_img: '',
+        name: '',
+        nick_name: '',
+        _id: ''
+      }, this.user)
+      console.log('user', user)
+      // this.$dialog({
+      //   user: user,
+      //   img: filePaths[0],
+      //   type: 'right',
+      //   createTime: Date.now(),
+      //   showTimeTip: this.showTimeTip(),
+      //   duration: 1000
+      // })
     }
   }
 }
@@ -249,47 +263,11 @@ textarea {
   background-color: inherit;
   /* box-shadow: -3px 3px 4px rgba(234, 234, 234, 0.4); */
 }
-
-.tool-group {
-  position: absolute;
-  bottom: 40px;
-  left: 0;
-  .btn-item {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    margin-top: 6px;
-    /* background-color: #2196f3; */
-    border-radius: 50%;
-  }
-  .icon-item {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    color: #fff;
-    transform: translate(-50%, -50%);
-  }
-}
-.emoji-btn {
-  background-color: #ef6493;
-  box-shadow: 0px 3px 6px 0px rgba(255, 78, 166, 0.4);
-}
-.pic-btn {
-  background-color: $greenColor;
-  box-shadow: 0px 3px 6px 0px rgba(153, 209, 89, 0.8);
-}
-.capture-btn {
-  background-color: #7b60e2;
-  box-shadow: 0px 3px 6px 0px rgba(139, 70, 179, 0.4);
-}
-
-.plus-btn {
+.tool {
   position: absolute;
   top: 50%;
   left: 10px;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
 }
 .send-btn {
   position: absolute;
@@ -300,7 +278,7 @@ textarea {
   height: 40px;
   border-radius: 50%;
 }
-.send-icon, .plus-icon {
+.send-icon {
   position: absolute;
   top: 50%;
   left: 50%;

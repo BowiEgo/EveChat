@@ -13,6 +13,7 @@
       <transition v-bind:name="transitionName">
         <div class="bubble" v-if="isShow">
           <span>{{ text }}</span>
+          <img :src="img" alt="">
         </div>
       </transition>
     </div> 
@@ -36,6 +37,10 @@ export default {
       default: 'left'
     },
     text: {
+      type: String,
+      default: ''
+    },
+    img: {
       type: String,
       default: ''
     },

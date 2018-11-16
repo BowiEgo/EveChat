@@ -26,7 +26,8 @@ const Dialogue = (options = {}) => {
     const containerEl = document.getElementById('dialogue')
     let instance = getAnInstance()
     let duration = options.duration || 0
-    instance.text = options.text
+    instance.text = options.text || ''
+    instance.img = options.img || ''
     instance.type = options.type
     instance.user = options.user
     instance.createTime = options.createTime

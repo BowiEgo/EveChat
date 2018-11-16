@@ -79,7 +79,8 @@ let rendererConfig = {
                   loader: 'sass-resources-loader',
                   options: {
                     resources: [
-                      path.resolve(__dirname, '../src/renderer/assets/styles/color.scss')
+                      path.resolve(__dirname, '../src/renderer/assets/styles/color.scss'),
+                      path.resolve(__dirname, '../src/renderer/assets/styles/animate.scss'),
                     ]
                   }
                 }
